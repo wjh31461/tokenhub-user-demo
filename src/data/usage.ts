@@ -1,7 +1,8 @@
-export type CallStatus = 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'CANCELLED'
+export type CallStatus = 'SUCCESS' | 'FAILED'
 export type MeteringStatus = 'PENDING' | 'COMPLETE' | 'UNAVAILABLE' | 'NOT_APPLICABLE'
 export type ChargeStatus = 'PENDING' | 'SETTLED' | 'NOT_CHARGED' | 'UNAVAILABLE'
 export type KeyCategory = 'USER' | 'BUSINESS' | 'UNKNOWN'
+export type ModelType = 'TEXT_TO_TEXT' | 'TEXT_TO_IMAGE' | 'VISION_TO_TEXT' | 'OTHER'
 
 export interface UsageCall {
   id: string
@@ -17,6 +18,7 @@ export interface UsageCall {
   keyName: string | null
   modelId: string | null
   modelName: string
+  modelType: ModelType
   requestedModel: string
   status: CallStatus
   meteringStatus: MeteringStatus
@@ -43,10 +45,11 @@ export const services = [
 ]
 
 export const models = [
-  { id: 'model-deepseek-v3', label: 'DeepSeek V3' },
-  { id: 'model-qwen-max', label: 'Qwen Max' },
-  { id: 'model-glm-4', label: 'GLM-4 Plus' },
-  { id: 'model-vision-pro', label: 'Vision Pro' },
+  { id: 'model-deepseek-v3', label: 'DeepSeek V3', type: 'TEXT_TO_TEXT' as const },
+  { id: 'model-qwen-max', label: 'Qwen Max', type: 'TEXT_TO_TEXT' as const },
+  { id: 'model-glm-4', label: 'GLM-4 Plus', type: 'TEXT_TO_TEXT' as const },
+  { id: 'model-vision-pro', label: 'Vision Pro', type: 'VISION_TO_TEXT' as const },
+  { id: 'model-image-pro', label: 'Image Pro', type: 'TEXT_TO_IMAGE' as const },
 ]
 
 export const actors = [
@@ -84,7 +87,7 @@ for (let index = 0; index < 92; index += 1) {
   const cacheSupported = meteringStatus === 'COMPLETE' && index % 6 !== 0
   const cacheRead = cacheSupported && input !== null ? Math.floor(input * ((index % 5) / 10)) : null
   const cacheMiss = cacheSupported && input !== null && cacheRead !== null ? input - cacheRead : null
-  const callStatus: CallStatus = isPending ? 'PROCESSING' : index % 17 === 0 ? 'CANCELLED' : index % 11 === 0 ? 'FAILED' : 'SUCCESS'
+  const callStatus: CallStatus = index % 11 === 0 ? 'FAILED' : 'SUCCESS'
   const chargeStatus: ChargeStatus = isPending ? 'PENDING' : index % 31 === 0 ? 'UNAVAILABLE' : index % 13 === 0 ? 'NOT_CHARGED' : 'SETTLED'
   const charge = chargeStatus === 'SETTLED' && input !== null && output !== null ? Number(((input * 0.000002 + output * 0.000006) * (isBusiness ? 1.15 : 1)).toFixed(8)) : chargeStatus === 'NOT_CHARGED' ? 0 : null
   const seconds = 2 + index % 28
@@ -102,6 +105,7 @@ for (let index = 0; index < 92; index += 1) {
     keyName: isBusiness ? null : key.label,
     modelId: index % 41 === 0 ? null : model.id,
     modelName: index % 41 === 0 ? '未识别模型' : model.label,
+    modelType: index % 41 === 0 ? 'OTHER' : model.type,
     requestedModel: index % 41 === 0 ? 'auto' : model.id,
     status: callStatus,
     meteringStatus,
@@ -118,7 +122,7 @@ for (let index = 0; index < 92; index += 1) {
     durationMs: isPending ? null : seconds * 1000 + index * 7,
     ttftMs: isPending || isNonToken ? null : 210 + (index * 37) % 1_600,
     errorCode: callStatus === 'FAILED' ? (index % 2 ? 'MODEL_TIMEOUT' : 'RATE_LIMITED') : null,
-    resultMessage: callStatus === 'FAILED' ? '本次调用未完成，未返回有效模型结果。' : callStatus === 'CANCELLED' ? '客户端提前结束连接，平台已完成可获取用量的计量。' : isPending ? '调用正在处理，Token 与消费金额仍在更新。' : '调用已完成，计量结果已确认。',
+    resultMessage: callStatus === 'FAILED' ? '本次调用失败，未返回有效模型结果。' : isPending ? '调用成功，Token 与额度消耗仍在更新。' : '调用成功，计量结果已更新。',
   })
 }
 

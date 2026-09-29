@@ -11,3 +11,7 @@
 .usage-view .usage-bar-day>span{font-size:10px;color:#48576c}
 .usage-view .usage-bar-tooltip{font-size:11px}
 .usage-view .usage-segment button,.usage-view .usage-link,.usage-view .usage-status{font-size:12px}
+.usage-model-type{display:inline-flex;padding:3px 7px;border:1px solid #dbe4f2;border-radius:4px;background:#f7f9fc;color:#526984;white-space:nowrap}
+.usage-token-breakdown{display:grid;gap:5px;min-width:106px}
+.usage-token-breakdown span{display:flex;justify-content:space-between;gap:14px;font-variant-numeric:tabular-nums}
+.usage-token-breakdown i{color:#68788e;font-style:normal}

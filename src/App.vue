@@ -63,7 +63,6 @@ watch(() => route.path, path => {
         <span class="brand-mark"><Layers3 :size="23" :stroke-width="2" /></span>
         <span class="brand-text">Token<span>Hub</span><small>用户门户</small></span>
       </RouterLink>
-      <div class="nav-caption">工作空间</div>
       <nav aria-label="主导航">
         <RouterLink v-for="item in visibleItems" :key="item.path" :to="item.path" class="nav-link" :title="item.title" :class="{ selected: (route.path === item.path || route.path.startsWith(item.path + '/')) }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined">
           <component :is="item.icon" :size="19" :stroke-width="1.7" /><span>{{ item.title }}</span><span v-if="item.path === '/subaccounts'" class="owner-tag">主账户</span>
