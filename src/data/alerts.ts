@@ -69,7 +69,7 @@ export const alertSubaccounts = [
 const serviceAction = (serviceId: string): AlertAction => ({ code: 'VIEW_SERVICE', label: '查看服务与额度', path: `/services/${serviceId}?tab=quota`, primary: true })
 const usageAction = (serviceId: string): AlertAction => ({ code: 'VIEW_USAGE', label: '查看相关用量', path: `/usage?tab=statistics&serviceId=${serviceId}&startDate=2026-09-22&endDate=2026-09-28` })
 const callAction = (serviceId: string, keyId?: string): AlertAction => ({ code: 'VIEW_CALLS', label: '查看调用明细', path: `/usage?tab=details&serviceId=${serviceId}${keyId ? `&userKeyId=${keyId}` : ''}&startDate=2026-09-22&endDate=2026-09-28`, primary: true })
-const ticketAction = (alertId: string): AlertAction => ({ code: 'CREATE_TICKET', label: '提交工单', path: `/help/tickets?action=create&alertId=${alertId}` })
+const ticketAction = (alertId: string): AlertAction => ({ code: 'CREATE_TICKET', label: '提交工单', path: `/help/tickets/new?sourceType=ALERT&sourceId=${alertId}` })
 
 export const alertRecords: AlertRecord[] = [
   {

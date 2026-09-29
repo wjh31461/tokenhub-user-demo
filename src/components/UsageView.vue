@@ -19,7 +19,7 @@ const activeTab = computed(() => route.query.tab === 'details' ? 'details' : 'st
 const today = '2026-09-28'
 const defaults = () => ({
   range: '7', start: '2026-09-22', end: today, service: '', model: '', key: '', actor: '',
-  callStatus: '', meteringStatus: '', chargeStatus: '', callId: '',
+  callStatus: '',
 })
 const draft = ref(defaults())
 const applied = ref(defaults())
@@ -76,9 +76,6 @@ const commonRows = computed(() => scenario.value === 'empty' ? [] : permittedCal
 const detailRows = computed(() => commonRows.value.filter(call => {
   const filter = applied.value
   return (!filter.callStatus || call.status === filter.callStatus)
-    && (!filter.meteringStatus || call.meteringStatus === filter.meteringStatus)
-    && (!filter.chargeStatus || call.chargeStatus === filter.chargeStatus)
-    && (!filter.callId || call.id === filter.callId)
 }))
 const pageRows = computed(() => detailRows.value.slice((page.value - 1) * pageSize.value, page.value * pageSize.value))
 const hasNext = computed(() => page.value * pageSize.value < detailRows.value.length)
@@ -165,7 +162,6 @@ function applyPreset() {
 function validate() {
   const span = (Date.parse(draft.value.end) - Date.parse(draft.value.start)) / 86_400_000 + 1
   if (!Number.isFinite(span) || span < 1 || span > 90 || draft.value.end > today) return '请选择不超过 90 天的有效时间范围，结束日期不能晚于 2026-09-28。'
-  if (draft.value.callId.trim().length > 128) return '调用编号最多 128 个字符。'
   return ''
 }
 function load() {
@@ -182,15 +178,15 @@ function updateUrl() {
 }
 function query() {
   validation.value = validate(); if (validation.value) return
-  applied.value = { ...draft.value, callId: draft.value.callId.trim(), actor: props.isSub ? '' : draft.value.actor }
+  applied.value = { ...draft.value, actor: props.isSub ? '' : draft.value.actor }
   page.value = 1; updateUrl(); load()
 }
 function reset() { draft.value = defaults(); if (props.isSub) draft.value.actor = ''; query() }
 function refresh() { page.value = 1; snapshot.value = '2026-09-28T16:42:00+08:00'; load() }
 function retry() { recovered.value = true; load() }
 function switchTab(tab: 'statistics' | 'details') {
-  draft.value.callStatus = draft.value.meteringStatus = draft.value.chargeStatus = draft.value.callId = ''
-  applied.value.callStatus = applied.value.meteringStatus = applied.value.chargeStatus = applied.value.callId = ''
+  draft.value.callStatus = ''
+  applied.value.callStatus = ''
   page.value = 1
   router.replace({ path: '/usage', query: { ...route.query, tab } })
 }
@@ -199,7 +195,7 @@ function drill(row: typeof breakdown.value[number]) {
   draft.value.service = dimension.value === 'SERVICE' ? row.id : draft.value.service
   draft.value.actor = dimension.value === 'ACTOR' ? row.id : draft.value.actor
   draft.value.key = dimension.value === 'KEY' ? row.id : draft.value.key
-  applied.value = { ...draft.value, callStatus: '', meteringStatus: '', chargeStatus: '', callId: '' }
+  applied.value = { ...draft.value, callStatus: '' }
   page.value = 1
   const query: Record<string, string> = { tab: 'details', startDate: applied.value.start, endDate: applied.value.end }
   if (applied.value.service) query.serviceId = applied.value.service
@@ -249,7 +245,7 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(copyTimer); document.b
 
 <template>
   <div class="usage-view">
-    <div class="usage-heading"><div><div class="eyebrow">USAGE & CONSUMPTION</div><h1>用量中心</h1><p>查看 Token 消耗、缓存用量与逐笔调用记录。</p></div><button class="refresh-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button></div>
+    <div class="usage-heading"><div><h1>用量中心</h1><p>查看 Token 消耗、缓存用量与逐笔调用记录。</p></div><button class="refresh-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button></div>
     <div class="demo-toolbar"><label>页面场景<select v-model="scenario" aria-label="用量中心页面场景"><option value="normal">正常数据</option><option value="empty">暂无调用</option><option value="partial">部分计量中</option><option value="error">查询失败</option></select></label></div>
     <div class="usage-scope"><span class="usage-scope-icon"><Database :size="19" /></span><div><strong>{{ isSub ? '仅当前子账户的调用' : '当前主账户及子账户调用' }}</strong><p>实际 Token、套餐扣减额度和消费金额分别统计；内部重试不会重复计算调用次数。</p></div><span>上海时区</span></div>
 
@@ -264,7 +260,7 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(copyTimer); document.b
           <label><span>用户密钥</span><select v-model="draft.key"><option value="">全部密钥</option><option v-for="item in optionKeys" :key="item.id" :value="item.id">{{ item.label }}</option><option v-if="!isSub" value="BUSINESS">系统业务调用</option><option value="UNKNOWN">未识别密钥</option></select></label>
           <label v-if="!isSub"><span>调用账户</span><select v-model="draft.actor"><option value="">全部账户</option><option v-for="item in actors" :key="item.id" :value="item.id">{{ item.label }} · {{ item.type }}</option></select></label>
         </div>
-        <div v-if="activeTab==='details'" class="usage-detail-filters"><label><span>调用状态</span><select v-model="draft.callStatus"><option value="">全部状态</option><option value="SUCCESS">成功</option><option value="FAILED">失败</option><option value="CANCELLED">已取消</option><option value="PROCESSING">处理中</option></select></label><label><span>计量状态</span><select v-model="draft.meteringStatus"><option value="">全部状态</option><option value="COMPLETE">已完成</option><option value="PENDING">待计量</option><option value="UNAVAILABLE">无法获取</option><option value="NOT_APPLICABLE">非 Token 计量</option></select></label><label><span>计费状态</span><select v-model="draft.chargeStatus"><option value="">全部状态</option><option value="SETTLED">已确认</option><option value="PENDING">待确认</option><option value="NOT_CHARGED">不计费</option><option value="UNAVAILABLE">暂不可用</option></select></label><label class="usage-call-search"><span>调用编号</span><input v-model="draft.callId" placeholder="精确输入调用编号" @keyup.enter="query"></label></div>
+        <div v-if="activeTab==='details'" class="usage-detail-filters"><label><span>调用状态</span><select v-model="draft.callStatus"><option value="">全部状态</option><option value="SUCCESS">成功</option><option value="FAILED">失败</option></select></label></div>
         <div class="usage-filter-footer"><div><span v-if="dirty" class="usage-dirty">筛选条件尚未应用</span><span v-if="validation" class="usage-validation">{{ validation }}</span></div><div><button class="usage-secondary" @click="reset"><RotateCcw :size="14" />重置</button><button class="usage-primary" :disabled="loading" @click="query"><Search :size="14" />查询</button></div></div>
       </div>
 
@@ -299,6 +295,6 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(copyTimer); document.b
     </section>
     <p class="usage-footnote"><Info :size="14" />用量、计量、计费和快照数据由大网关或用量服务提供。</p>
 
-    <div v-if="selectedId" class="usage-drawer-layer" @keydown="trapFocus"><button class="usage-drawer-backdrop" aria-label="关闭调用详情" @click="closeDetail"/><aside ref="drawer" class="usage-drawer" role="dialog" aria-modal="true" aria-labelledby="usage-detail-title"><header><div><div class="eyebrow">CALL DETAIL</div><h2 id="usage-detail-title">调用详情</h2></div><button ref="drawerClose" class="icon-button" aria-label="关闭" @click="closeDetail"><X :size="19" /></button></header><div v-if="selected" class="usage-drawer-body"><div class="usage-detail-summary"><span :class="selected.status.toLowerCase()"><Activity :size="21" /></span><div><h3>{{ selected.modelName }}<b class="usage-status" :class="selected.status.toLowerCase()">{{ statusLabel[selected.status] }}</b></h3><p>{{ selected.resultMessage }}</p></div></div><section><h3>基本信息</h3><dl><dt>调用编号</dt><dd class="usage-copy">{{ selected.id }}<button @click="copy(selected.id)"><Copy :size="13" /></button></dd><dt>调用时间</dt><dd>{{ formatTime(selected.startedAt) }}</dd><dt>完成时间</dt><dd>{{ formatTime(selected.completedAt) }}</dd><dt>所属服务</dt><dd>{{ selected.serviceName }}</dd><dt v-if="!isSub">调用账户</dt><dd v-if="!isSub">{{ selected.actorName }}</dd><dt>用户密钥</dt><dd>{{ selected.keyCategory==='BUSINESS'?'系统业务调用（凭证不对用户展示）':selected.keyName??'未识别密钥' }}</dd></dl></section><section><h3>模型与计量</h3><dl><dt>请求 model</dt><dd>{{ selected.requestedModel }}</dd><dt>最终平台模型</dt><dd>{{ selected.modelName }}</dd><dt>Token</dt><dd>输入 {{ formatNumber(selected.inputTokens) }} · 输出 {{ formatNumber(selected.outputTokens) }} · 合计 {{ formatNumber(tokenTotal(selected)) }}</dd><dt>缓存输入</dt><dd>命中 {{ formatNumber(selected.cacheReadTokens) }} · 未命中 {{ formatNumber(selected.cacheMissTokens) }} · 写入 {{ formatNumber(selected.cacheWriteTokens) }}</dd><dt>计量状态</dt><dd>{{ meteringLabel[selected.meteringStatus] }}</dd></dl></section><section><h3>消费与额度</h3><dl><dt>消费金额</dt><dd>{{ selected.chargeStatus==='SETTLED'?`${formatMoney(selected.chargeAmount)} CNY`:chargeLabel[selected.chargeStatus] }}</dd><dt>最终额度扣减</dt><dd>{{ selected.quotaAmount===null?'—':`${formatNumber(selected.quotaAmount)} ${selected.quotaUnit}` }}</dd><dt>说明</dt><dd>金额、实际 Token 和套餐额度是三种独立口径。</dd></dl></section><section><h3>调用结果</h3><dl><dt>公开错误码</dt><dd>{{ selected.errorCode??'—' }}</dd><dt>总耗时</dt><dd>{{ selected.durationMs===null?'—':`${selected.durationMs} ms` }}</dd><dt>首 Token 耗时</dt><dd>{{ selected.ttftMs===null?'—':`${selected.ttftMs} ms` }}</dd></dl></section></div><div v-else class="usage-state"><ShieldAlert :size="28" /><strong>调用不存在或当前身份无权查看</strong><p>请关闭详情后重新查询。</p></div><footer><span>{{ copied }}</span><button class="usage-secondary" @click="closeDetail">关闭</button></footer></aside></div>
+    <div v-if="selectedId" class="usage-drawer-layer" @keydown="trapFocus"><button class="usage-drawer-backdrop" aria-label="关闭调用详情" @click="closeDetail"/><aside ref="drawer" class="usage-drawer" role="dialog" aria-modal="true" aria-labelledby="usage-detail-title"><header><div><h2 id="usage-detail-title">调用详情</h2></div><button ref="drawerClose" class="icon-button" aria-label="关闭" @click="closeDetail"><X :size="19" /></button></header><div v-if="selected" class="usage-drawer-body"><div class="usage-detail-summary"><span :class="selected.status.toLowerCase()"><Activity :size="21" /></span><div><h3>{{ selected.modelName }}<b class="usage-status" :class="selected.status.toLowerCase()">{{ statusLabel[selected.status] }}</b></h3><p>{{ selected.resultMessage }}</p></div></div><section><h3>基本信息</h3><dl><dt>调用编号</dt><dd class="usage-copy">{{ selected.id }}<button @click="copy(selected.id)"><Copy :size="13" /></button></dd><dt>调用时间</dt><dd>{{ formatTime(selected.startedAt) }}</dd><dt>完成时间</dt><dd>{{ formatTime(selected.completedAt) }}</dd><dt>所属服务</dt><dd>{{ selected.serviceName }}</dd><dt v-if="!isSub">调用账户</dt><dd v-if="!isSub">{{ selected.actorName }}</dd><dt>用户密钥</dt><dd>{{ selected.keyCategory==='BUSINESS'?'系统业务调用（凭证不对用户展示）':selected.keyName??'未识别密钥' }}</dd></dl></section><section><h3>模型与计量</h3><dl><dt>请求 model</dt><dd>{{ selected.requestedModel }}</dd><dt>最终平台模型</dt><dd>{{ selected.modelName }}</dd><dt>Token</dt><dd>输入 {{ formatNumber(selected.inputTokens) }} · 输出 {{ formatNumber(selected.outputTokens) }} · 合计 {{ formatNumber(tokenTotal(selected)) }}</dd><dt>缓存输入</dt><dd>命中 {{ formatNumber(selected.cacheReadTokens) }} · 未命中 {{ formatNumber(selected.cacheMissTokens) }} · 写入 {{ formatNumber(selected.cacheWriteTokens) }}</dd><dt>计量状态</dt><dd>{{ meteringLabel[selected.meteringStatus] }}</dd></dl></section><section><h3>消费与额度</h3><dl><dt>消费金额</dt><dd>{{ selected.chargeStatus==='SETTLED'?`${formatMoney(selected.chargeAmount)} CNY`:chargeLabel[selected.chargeStatus] }}</dd><dt>最终额度扣减</dt><dd>{{ selected.quotaAmount===null?'—':`${formatNumber(selected.quotaAmount)} ${selected.quotaUnit}` }}</dd><dt>说明</dt><dd>金额、实际 Token 和套餐额度是三种独立口径。</dd></dl></section><section><h3>调用结果</h3><dl><dt>公开错误码</dt><dd>{{ selected.errorCode??'—' }}</dd><dt>总耗时</dt><dd>{{ selected.durationMs===null?'—':`${selected.durationMs} ms` }}</dd><dt>首 Token 耗时</dt><dd>{{ selected.ttftMs===null?'—':`${selected.ttftMs} ms` }}</dd></dl></section></div><div v-else class="usage-state"><ShieldAlert :size="28" /><strong>调用不存在或当前身份无权查看</strong><p>请关闭详情后重新查询。</p></div><footer><span>{{ copied }}</span><button class="usage-secondary" @click="closeDetail">关闭</button></footer></aside></div>
   </div>
 </template>

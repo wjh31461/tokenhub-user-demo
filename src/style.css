@@ -24,3 +24,102 @@ html,body,#app{height:100%;overflow:hidden}
 .topbar{flex:0 0 74px}
 .workspace>main{width:100%;min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}
 @media(max-width:640px){.topbar{flex-basis:65px}}
+
+/* Page titles no longer show the decorative English eyebrow line. */
+.overview-heading>div>.eyebrow,.audit-heading>div>.eyebrow,.page-heading>div>.eyebrow,.requirements-page-heading>div>.eyebrow{display:none}
+
+/* The current login demo enters the primary account directly. */
+.account-fixed{display:flex;align-items:center;gap:10px}.logout-button{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:6px;color:#7c899d;font-size:13px}.logout-button:hover{background:#f2f5fa;color:#4869b9}
+@media(max-width:640px){.account-fixed .account-label,.logout-button span{display:none}.top-actions{gap:12px}}
+
+/* Consumer-facing visual theme: warmer canvas, friendlier shapes and brighter actions. */
+:root{--th-primary:#6257e8;--th-primary-strong:#5146d5;--th-primary-soft:#f0efff;--th-accent:#4c91f7;--th-canvas:#f7f7fc;--th-line:#e8e7f2;--th-shadow:0 10px 30px rgba(54,48,112,.07)}
+body{background:var(--th-canvas);color:#29324a}
+.sidebar{background:linear-gradient(180deg,#fff 0%,#fbfaff 100%);border-right-color:var(--th-line);box-shadow:6px 0 24px rgba(54,48,112,.025)}
+.brand-mark{border-radius:13px;background:linear-gradient(145deg,var(--th-primary),var(--th-accent));box-shadow:0 8px 20px rgba(98,87,232,.25)}
+.brand-text{color:#252d43}.nav-link,.child-link{border-radius:11px}.nav-link:hover,.child-link:hover{background:#f4f2ff;color:var(--th-primary)}
+.nav-link.selected{background:linear-gradient(90deg,#eeecff,#f4f7ff);color:var(--th-primary);box-shadow:none}.child-link.selected{background:#f0efff;color:var(--th-primary)}
+.child-link.selected .child-dot{background:var(--th-primary)}.nav-divider,.sidebar-bottom{border-color:var(--th-line)}
+.topbar{background:rgba(255,255,255,.88);border-bottom-color:var(--th-line);backdrop-filter:blur(16px);box-shadow:0 4px 18px rgba(54,48,112,.025)}
+.workspace>main{background:radial-gradient(circle at 92% 0,#efefff 0,transparent 28%),linear-gradient(180deg,#f8f8fd 0%,#f6f7fb 100%)}
+.avatar{background:linear-gradient(145deg,#efedff,#eaf3ff);border-color:#dedafa;color:var(--th-primary)}
+.requirements-link,.top-alert-link,.docs-link,.refresh-button,.outline-button,.logout-button{border-radius:10px}
+.requirements-link:hover,.requirements-link.active,.top-alert-link:hover{color:var(--th-primary);background:var(--th-primary-soft);border-color:#d8d4fb}
+.page-panel,.overview-section,.audit-card,.alerts-card,.usage-card,.models-card,.announcements-card,.tickets-card,.document-reader,.requirements-library{border-color:var(--th-line)!important;border-radius:16px!important;box-shadow:var(--th-shadow)}
+.service-card,.quick-card,.alerts-summary article{border-color:#e9e7f4!important;border-radius:13px!important;transition:transform .18s,box-shadow .18s,border-color .18s}
+.service-card:hover,.quick-card:hover,.alerts-summary article:hover{transform:translateY(-2px);border-color:#d8d3fb!important;box-shadow:0 10px 24px rgba(76,68,166,.08)}
+.role-pill,.count-pill,.owner-tag,.placeholder-badge,.demo-badge{border-radius:999px!important}.role-pill{background:var(--th-primary-soft);border-color:#dedafb;color:var(--th-primary)}
+.range-switch,.tabs,.alerts-tabs{border-color:var(--th-line)}.range-switch{border-radius:10px;background:#f1f0f8}.range-switch button{border-radius:7px}.range-switch button.active{color:var(--th-primary)}
+.audit-primary,.alerts-primary{background:linear-gradient(135deg,var(--th-primary),#526fe8);border-radius:9px;box-shadow:0 6px 14px rgba(98,87,232,.18)}
+.audit-primary:hover,.alerts-primary:hover{background:linear-gradient(135deg,var(--th-primary-strong),#4563d8)}
+.audit-view select,.audit-view input,.alerts-view select,.alerts-view input,.usage-view select,.usage-view input,.models-view select,.models-view input{border-radius:9px!important;border-color:#deddea!important}
+.audit-view select:focus-visible,.audit-view input:focus-visible,.alerts-view select:focus-visible,.alerts-view input:focus-visible,.usage-view select:focus-visible,.usage-view input:focus-visible,.models-view select:focus-visible,.models-view input:focus-visible{outline-color:#bdb7ff!important}
+.audit-table th,.alerts-table th,.usage-table-scroll th{background:#f7f6fc!important}.audit-table tbody tr:hover td,.alerts-table tbody tr:hover td,.usage-table-scroll tbody tr:hover{background:#faf9ff!important}
+.document-select-wrap{border-radius:11px!important;background:#fafaff!important}.contents-list button{border-radius:8px!important}.contents-list button:hover{background:var(--th-primary-soft)!important;color:var(--th-primary)!important}
+@media(max-width:640px){.workspace>main{background:#f7f7fc}.page-panel,.overview-section,.audit-card,.alerts-card,.usage-card,.models-card,.announcements-card,.tickets-card,.document-reader,.requirements-library{border-radius:13px!important}}
+
+/* Apply the consumer theme to every functional route. */
+.models-filter-card,.models-results,.model-detail-hero,.model-detail-section,.model-detail-aside>section,
+.announcement-card,.announcement-detail-card,
+.docs-nav,.docs-section,.docs-article,.docs-search-page,
+.ticket-summary-strip,.ticket-panel,.ticket-form-card,.ticket-detail-card,.ticket-conversation,.ticket-info>section{
+  border-color:var(--th-line)!important;border-radius:16px!important;box-shadow:var(--th-shadow)
+}
+.model-card,.category-grid article,.popular-grid button,.quickstart-grid>*{
+  border-color:#e9e7f4!important;border-radius:13px!important;transition:transform .18s,box-shadow .18s,border-color .18s
+}
+.model-card:hover,.category-grid article:hover,.popular-grid button:hover{transform:translateY(-2px);border-color:#d8d3fb!important;box-shadow:0 10px 24px rgba(76,68,166,.08)}
+.usage-filters,.alerts-filters,.announcement-filter,.ticket-filter,.models-filter-card{background:linear-gradient(180deg,#fdfdff,#faf9ff)!important}
+.usage-primary,.models-primary,.announcement-primary,.ticket-primary,.models-search button{
+  background:linear-gradient(135deg,var(--th-primary),#526fe8)!important;border-radius:9px!important;box-shadow:0 6px 14px rgba(98,87,232,.18)
+}
+.usage-primary:hover,.models-primary:hover,.announcement-primary:hover,.ticket-primary:hover,.models-search button:hover{background:linear-gradient(135deg,var(--th-primary-strong),#4563d8)!important}
+.usage-secondary,.models-secondary,.announcement-secondary,.ticket-secondary,.ticket-upload,.back-button{
+  border-radius:9px!important
+}
+.usage-tabs button.active,.alerts-tabs button.active,.models-view a:hover,.announcement-unread,.ticket-text-action,.usage-link,.alerts-detail-link,.audit-detail-link{color:var(--th-primary)!important;border-color:var(--th-primary)!important}
+.models-search,.audit-search,.alerts-keyword>div,.announcement-keyword>div,.ticket-keyword>div{border-radius:10px!important;border-color:#deddea!important}
+.announcements-view select,.announcements-view input,.ticket-filter-grid select,.ticket-filter-grid input,.ticket-form select,.ticket-form input,.ticket-form textarea,.ticket-reply textarea,.ticket-continue textarea{border-radius:9px!important;border-color:#deddea!important}
+.model-grid{background:#faf9ff!important}.model-icon,.protocol-list article>span,.usage-scope-icon,.audit-scope-icon{background:var(--th-primary-soft)!important;color:var(--th-primary)!important}
+.model-tags span,.model-availability,.announcement-pinned,.announcement-category,.announcement-important,.announcement-unread,.ticket-status,.usage-status,.alerts-severity,.audit-result{border-radius:999px!important}
+.models-pagination button.active{background:var(--th-primary)!important;border-color:var(--th-primary)!important}.usage-segment{border-radius:9px!important;background:#f3f1fa!important}.usage-segment button{border-radius:7px!important}.usage-segment button.active{color:var(--th-primary)!important}
+.announcement-item:hover,.ticket-table tbody tr:hover{background:#faf9ff!important}.ticket-table th{background:#f7f6fc!important}
+.docs-hero{border-radius:16px!important;background:radial-gradient(circle at 88% 10%,#ffffff30 0,transparent 28%),linear-gradient(135deg,#574cd9,#4f83eb)!important;box-shadow:0 14px 34px rgba(79,70,190,.18)}
+.docs-hero h2,.docs-hero p{color:#fff!important}.docs-hero p{opacity:.86}
+.docs-hero-search,.docs-nav-search{border-radius:11px!important}.docs-next-actions,.docs-note,.ticket-source,.ticket-security,.ticket-timeline article,.ticket-continue{border-radius:11px!important}
+.ticket-progress .active,.ticket-no,.ticket-back,.model-code:hover,.model-card footer button,.models-back:hover,.announcement-related button:hover{color:var(--th-primary)!important}
+.ticket-progress .active span{background:var(--th-primary-soft)!important;border-color:#aaa3f4!important}.ticket-progress>div.active:not(:first-child):before{background:#aaa3f4!important}
+@media(max-width:640px){.models-filter-card,.models-results,.model-detail-hero,.model-detail-section,.model-detail-aside>section,.announcement-card,.announcement-detail-card,.docs-nav,.docs-section,.docs-article,.docs-search-page,.ticket-summary-strip,.ticket-panel,.ticket-form-card,.ticket-detail-card,.ticket-conversation,.ticket-info>section{border-radius:13px!important}}
+
+/* Use the overview page as the typography and contrast baseline. */
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.docs-view,.tickets-view,.requirements-view){color:#34445e;font-size:14px}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.docs-view,.tickets-view,.requirements-view) h1{color:#273852;font-size:27px;line-height:1.35}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.docs-view,.tickets-view,.requirements-view) h2{color:#2f4059}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.docs-view,.tickets-view) :is(p,label,input,select,textarea){font-size:13px!important;color:#48576c}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.docs-view,.tickets-view) :is(button,a){font-size:13px}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.docs-view,.tickets-view) :is(small,time,kbd){font-size:12px!important;color:#55647a}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.tickets-view) table{font-size:13px!important}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.tickets-view) table th{font-size:12px!important;color:#48576c!important}
+:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.tickets-view) table td{font-size:13px!important;color:#34445e!important}
+.usage-view :is(.usage-query-meta,.usage-metrics span,.usage-status,.usage-link,.usage-pagination,.usage-footnote,.usage-bar-tooltip,.usage-cache-panel dt,.usage-cache-note){font-size:12px!important;color:#48576c}
+.models-view :is(.model-code,.model-availability,.model-tags span,.model-card-meta span,.model-card footer span,.models-pagination,.models-footnote,.model-section-note,.model-update dl>div){font-size:12px!important;color:#48576c}
+.models-view :is(.model-summary,.model-description){font-size:13px!important;color:#48576c}.models-view .model-card h3{font-size:15px}
+.alerts-view :is(.alerts-severity,.alerts-lifecycle,.alerts-pagination,.alerts-footnote,.alerts-filter-title span){font-size:12px!important}
+.audit-view :is(.audit-result,.audit-pagination,.audit-footnote,.audit-delay,.audit-readonly){font-size:12px!important}
+.announcements-view :is(.announcement-pinned,.announcement-category,.announcement-important,.announcement-unread,.announcement-impact,.announcement-pagination){font-size:12px!important}
+.tickets-view :is(.ticket-status,.ticket-no,.ticket-pagination,.ticket-filter-title span,.ticket-detail-title p,.ticket-references small){font-size:12px!important}
+.docs-view :is(.docs-nav button,.docs-nav a,.docs-nav span,.docs-nav small,.docs-page-head p,.docs-section-heading span,.quickstart-grid p,.popular-grid small,.category-grid p,.docs-search-result p,.docs-search-result small,.docs-toc button,.docs-toc span,.docs-toc p){font-size:12px!important;color:#48576c}
+.docs-view :is(.quickstart-grid strong,.popular-grid strong,.category-grid h3,.docs-section-heading h2,.docs-toc strong){font-size:14px!important;color:#2f4059}
+.docs-view .docs-article{font-size:14px;color:#34445e}.docs-view .docs-article p,.docs-view .docs-article li,.docs-view .docs-article td{font-size:14px!important;line-height:1.85;color:#34445e}.docs-view .docs-article code{font-size:12px}
+.requirements-view .requirements-markdown{font-size:15px;color:#26374e}.requirements-view .contents-list button{font-size:13px!important;color:#48576c!important}.requirements-view .contents-list button.nested{font-size:12px!important}.requirements-view .document-picker>small,.requirements-view .document-picker>label{font-size:12px!important;color:#55647a!important}
+.overview-demo :is(.announcement-category,.pinned-label){font-size:12px!important}
+.usage-view :is(.usage-scope>span:last-child,.usage-bar-day>span,.usage-cache-ring span,.usage-cache-panel dd){font-size:12px!important}
+.models-view .models-results>header h2 span,.alerts-view .alerts-tabs button span{font-size:12px!important}
+.audit-view :is(.audit-readonly span,.audit-avatar){font-size:12px!important}
+.audit-view .audit-results-head h2 span{font-size:12px!important}
+.docs-view :is(.docs-nav-footer strong,.quickstart-grid span,.docs-note strong){font-size:12px!important}
+.docs-view :is(.docs-nav-help strong,.docs-safety-note strong){font-size:12px!important}
+.announcements-view .announcement-filter-title span{font-size:12px!important}
+.tickets-view .ticket-table i{font-size:12px!important}
+.requirements-view :is(.reader-header span,.reader-footer){font-size:12px!important;color:#55647a!important}
+@media(max-width:640px){:is(.usage-view,.models-view,.alerts-view,.audit-view,.announcements-view,.docs-view,.tickets-view,.requirements-view) h1{font-size:25px}}

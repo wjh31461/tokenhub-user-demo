@@ -112,7 +112,7 @@ initializeFromRoute()
 <template>
   <div class="models-view">
     <template v-if="!isDetail">
-      <div class="models-heading"><div><div class="eyebrow">MODEL CATALOG</div><h1>模型目录</h1><p>查看平台开放模型的能力、公开标识与用户计价，选择适合您的模型。</p></div><RouterLink class="models-secondary" to="/help/docs"><BookOpen :size="15" />接入文档<ArrowRight :size="13" /></RouterLink></div>
+      <div class="models-heading"><div><h1>模型目录</h1><p>查看平台开放模型的能力、公开标识与用户计价，选择适合您的模型。</p></div><RouterLink class="models-secondary" to="/help/docs"><BookOpen :size="15" />接入文档<ArrowRight :size="13" /></RouterLink></div>
       <div class="demo-toolbar"><label>页面场景<select v-model="scenario" aria-label="页面场景"><option value="normal">正常使用</option><option value="empty">平台暂无模型</option><option value="restricted">关联服务受限</option><option value="error">目录加载失败</option></select></label></div>
       <section class="models-filter-card" aria-label="筛选模型">
         <form @submit.prevent="query"><div class="models-search"><Search :size="17" /><input v-model="draft.keyword" maxlength="100" placeholder="搜索模型名称、model 标识或适用场景" aria-label="搜索模型" /><button type="submit">搜索</button></div>

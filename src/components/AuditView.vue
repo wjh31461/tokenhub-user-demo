@@ -87,7 +87,7 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(copyTimer); document.b
 
 <template>
   <div class="audit-view">
-    <div class="audit-heading"><div><div class="eyebrow">ACCOUNT ACTIVITY & AUDIT</div><h1>操作审计</h1><p>每一次关键操作，都有迹可循。</p></div><button v-if="!isSub" class="refresh-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button></div>
+    <div class="audit-heading"><div><h1>操作审计</h1><p>每一次关键操作，都有迹可循。</p></div><button v-if="!isSub" class="refresh-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button></div>
     <section v-if="isSub" class="audit-state audit-card"><ShieldAlert :size="34" /><h2>当前身份无访问权限</h2><p>子账户暂不开放操作审计，请切换主账户查看。</p></section>
     <template v-else>
       <div class="demo-toolbar"><label>页面场景<select v-model="scenario" aria-label="审计页面场景"><option value="normal">正常记录</option><option value="empty">暂无记录</option><option value="error">查询失败</option><option value="partial">部分操作未接入</option></select></label></div>
@@ -118,7 +118,7 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(copyTimer); document.b
       <p class="audit-footnote"><Info :size="13" />仅记录关键管理操作，不包含模型请求内容或密钥原文。</p>
     </template>
     <Teleport to="body">
-      <div v-if="logId && !isSub" class="audit-drawer-layer" @keydown="trapFocus"><div class="audit-drawer-backdrop" @click="closeDetail" /><section ref="dialog" class="audit-drawer" role="dialog" aria-modal="true" aria-labelledby="audit-detail-title" tabindex="-1"><header><div><span class="eyebrow">AUDIT DETAIL</span><h2 id="audit-detail-title">操作详情</h2></div><button ref="closeButton" class="icon-button" aria-label="关闭操作详情" @click="closeDetail"><X :size="20" /></button></header>
+      <div v-if="logId && !isSub" class="audit-drawer-layer" @keydown="trapFocus"><div class="audit-drawer-backdrop" @click="closeDetail" /><section ref="dialog" class="audit-drawer" role="dialog" aria-modal="true" aria-labelledby="audit-detail-title" tabindex="-1"><header><div><h2 id="audit-detail-title">操作详情</h2></div><button ref="closeButton" class="icon-button" aria-label="关闭操作详情" @click="closeDetail"><X :size="20" /></button></header>
         <div v-if="!selected" class="audit-state"><ShieldAlert :size="32" /><strong>该记录不存在或当前无法查看</strong><p>请关闭详情并重新查询。</p></div>
         <div v-else class="audit-drawer-body">
           <div class="audit-detail-summary"><span class="audit-detail-symbol" :class="selected.result.toLowerCase()"><CheckCircle2 v-if="selected.result === 'SUCCESS'" :size="23" /><ShieldAlert v-else :size="23" /></span><div><h3>{{ selected.eventLabel }}<span class="audit-result" :class="selected.result.toLowerCase()">{{ resultLabels[selected.result] }}</span></h3><p>{{ selected.summary }}</p></div></div>

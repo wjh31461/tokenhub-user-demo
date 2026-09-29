@@ -195,7 +195,7 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(copyTimer); document.b
 
 <template>
   <div class="alerts-view">
-    <div class="alerts-heading"><div><div class="eyebrow">ALERTS & ACTIONS</div><h1>告警中心</h1><p>集中查看额度风险与异常调用，快速定位受影响的服务和密钥。</p></div><div class="alerts-heading-actions"><button class="alerts-secondary" :disabled="!unreadCount || loading" @click="markAllRead"><CheckCheck :size="15" />全部标记已读</button><button class="refresh-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button></div></div>
+    <div class="alerts-heading"><div><h1>告警中心</h1><p>集中查看额度风险与异常调用，快速定位受影响的服务和密钥。</p></div><div class="alerts-heading-actions"><button class="alerts-secondary" :disabled="!unreadCount || loading" @click="markAllRead"><CheckCheck :size="15" />全部标记已读</button><button class="refresh-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button></div></div>
     <div class="demo-toolbar"><label>页面场景<select v-model="scenario" aria-label="告警页面场景"><option value="normal">正常告警</option><option value="empty">暂无告警</option><option value="error">查询失败</option></select></label></div>
 
     <div class="alerts-summary" aria-label="告警概况">
@@ -236,7 +236,7 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(copyTimer); document.b
     <p class="alerts-footnote"><Info :size="13" />告警只展示必要的计量与异常摘要，不包含请求正文、响应正文、完整密钥或供应商内部信息。</p>
 
     <Teleport to="body">
-      <div v-if="alertId" class="alerts-drawer-layer" @keydown="trapFocus"><div class="alerts-drawer-backdrop" @click="closeDetail" /><section ref="drawer" class="alerts-drawer" role="dialog" aria-modal="true" aria-labelledby="alert-detail-title" tabindex="-1"><header><div><span class="eyebrow">ALERT DETAIL</span><h2 id="alert-detail-title">告警详情</h2></div><button ref="closeButton" class="icon-button" aria-label="关闭告警详情" @click="closeDetail"><X :size="20" /></button></header>
+      <div v-if="alertId" class="alerts-drawer-layer" @keydown="trapFocus"><div class="alerts-drawer-backdrop" @click="closeDetail" /><section ref="drawer" class="alerts-drawer" role="dialog" aria-modal="true" aria-labelledby="alert-detail-title" tabindex="-1"><header><div><h2 id="alert-detail-title">告警详情</h2></div><button ref="closeButton" class="icon-button" aria-label="关闭告警详情" @click="closeDetail"><X :size="20" /></button></header>
         <div v-if="!selected" class="alerts-state"><ShieldAlert :size="34" /><strong>该告警不存在或当前无法查看</strong><p>请关闭详情并重新查询。</p></div>
         <div v-else class="alerts-drawer-body">
           <div class="alerts-detail-summary" :class="selected.severity.toLowerCase()"><span><ShieldAlert v-if="selected.severity === 'CRITICAL'" :size="23" /><AlertTriangle v-else-if="selected.severity === 'WARNING'" :size="23" /><CircleAlert v-else :size="23" /></span><div><div class="alerts-detail-badges"><span class="alerts-severity" :class="selected.severity.toLowerCase()">{{ severityLabels[selected.severity] }}</span><span class="alerts-lifecycle" :class="selected.lifecycle.toLowerCase()"><i />{{ lifecycleLabels[selected.lifecycle] }}</span></div><h3>{{ selected.title }}</h3><p>{{ selected.description }}</p></div></div>

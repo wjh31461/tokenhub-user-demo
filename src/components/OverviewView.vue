@@ -77,7 +77,7 @@ const exact = (n: number) => n.toLocaleString('zh-CN')
 
 <template>
   <div class="overview-demo">
-    <div class="overview-heading"><div><div class="eyebrow">YOUR WORKSPACE AT A GLANCE</div><h1>概览</h1><div class="identity-line"><span>{{ isSub ? '研发子账户' : '主账户' }}</span><span class="role-pill">{{ isSub ? '子账户' : '主账户管理员' }}</span><span class="state-pill" :class="{ amber: scenario === 'restricted' }"><i />{{ scenario === 'restricted' ? (isSub ? '关联服务受限' : '已停机') : '账户正常' }}</span></div></div><button class="refresh-button" :disabled="refreshing" @click="refresh"><RefreshCw :size="14" :class="{ spinning: refreshing }" />{{ refreshing ? '刷新中' : '刷新' }}</button></div>
+    <div class="overview-heading"><div><h1>概览</h1><div class="identity-line"><span>{{ isSub ? '研发子账户' : '主账户' }}</span><span class="role-pill">{{ isSub ? '子账户' : '主账户管理员' }}</span><span class="state-pill" :class="{ amber: scenario === 'restricted' }"><i />{{ scenario === 'restricted' ? (isSub ? '关联服务受限' : '已停机') : '账户正常' }}</span></div></div><button class="refresh-button" :disabled="refreshing" @click="refresh"><RefreshCw :size="14" :class="{ spinning: refreshing }" />{{ refreshing ? '刷新中' : '刷新' }}</button></div>
     <div class="demo-toolbar"><label>页面场景<select v-model="scenario" aria-label="页面场景"><option value="normal">正常使用</option><option value="empty">暂无服务 / 配额</option><option value="restricted">账户 / 服务受限</option><option value="partial">部分计量更新中</option><option value="error">额度区域加载失败</option></select></label></div>
     <div v-if="scenario === 'restricted'" class="notice-banner warning" role="status"><TriangleAlert :size="17" /><span>{{ isSub ? '主账户当前服务受限，您的配额暂时无法使用。请联系主账户管理员。' : '当前账户已停机，模型调用受限。请通过原业务办理渠道处理。' }}</span></div>
 
