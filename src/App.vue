@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import PublicLayout from './components/PublicLayout.vue'
+import HomeView from './components/HomeView.vue'
+import PricingView from './components/PricingView.vue'
 import OverviewView from './components/OverviewView.vue'
 import AuditView from './components/AuditView.vue'
 import AlertView from './components/AlertView.vue'
 import UsageView from './components/UsageView.vue'
 import ModelsView from './components/ModelsView.vue'
-import RequirementsView from './components/RequirementsView.vue'
 import AnnouncementsView from './components/AnnouncementsView.vue'
 import DocsView from './components/DocsView.vue'
 import TicketsView from './components/TicketsView.vue'
@@ -15,15 +17,15 @@ import './components/announcements.css'
 import './components/tickets.css'
 import './components/login.css'
 import { useRoute, useRouter } from 'vue-router'
-import { Layers3, LayoutDashboard, Package, KeyRound, ChartNoAxesCombined, Boxes, UsersRound, Bell, ClipboardList, CircleHelp, BookOpen, Megaphone, MessagesSquare, ChevronDown, ChevronRight, ChevronsLeft, Menu, ArrowUpRight, PanelTop, LogOut } from 'lucide-vue-next'
+import { Layers3, LayoutDashboard, Package, KeyRound, ChartNoAxesCombined, Boxes, UsersRound, Bell, ClipboardList, CircleHelp, BookOpen, Megaphone, MessagesSquare, ChevronDown, ChevronRight, ChevronsLeft, Menu, ArrowUpRight, PanelTop, LogOut, BadgeDollarSign, House } from 'lucide-vue-next'
 const route = useRoute()
 const router = useRouter()
+const authenticated = ref(sessionStorage.getItem('tokenhub-demo-session') !== null)
 const isSub = ref(false)
 const mobileOpen = ref(false)
 const compact = ref(false)
 const helpOpen = ref(true)
 const alertUnread = ref(4)
-const requirementsItem = { path: '/requirements', title: '需求文档', icon: BookOpen, description: '查阅用户门户需求与技术设计。' }
 const mainItems = [
   { path: '/overview', title: '概览', icon: LayoutDashboard, description: '在这里了解账户、服务与近期用量。' },
   { path: '/services', title: '我的服务', icon: Package, description: '查看已订购的服务、可用额度与套餐信息。' },
@@ -34,20 +36,25 @@ const mainItems = [
   { path: '/alerts', title: '告警中心', icon: Bell, description: '查看额度提醒与异常调用告警。' },
   { path: '/audit-logs', title: '操作审计', icon: ClipboardList, description: '查阅账户下的关键操作记录。' }
 ]
+const homeItem = { path: '/home', title: '首页', icon: House, description: '了解 TokenHub 平台与模型接入。' }
+const pricingItem = { path: '/pricing', title: '定价', icon: BadgeDollarSign, description: '了解模型价格与计费方式。' }
 const helpItems = [
   { path: '/help/docs', title: '接入文档', icon: BookOpen, description: '查阅 API 接入指南与使用说明。' },
   { path: '/help/announcements', title: '平台公告', icon: Megaphone, description: '了解模型更新、维护通知与平台动态。' },
   { path: '/help/tickets', title: '我的工单', icon: MessagesSquare, description: '提交问题反馈并跟踪处理进展。' }
 ]
-const visibleItems = computed(() => mainItems.filter(item => !isSub.value || !['/subaccounts', '/audit-logs'].includes(item.path)))
-const current = computed(() => [...mainItems, ...helpItems, requirementsItem].find(item => item.path === route.path || route.path.startsWith(item.path + '/')) ?? mainItems[0]!)
+const visibleItems = computed(() => authenticated.value ? [homeItem, ...mainItems.slice(0, 5), pricingItem, ...mainItems.slice(5)].filter(item => !isSub.value || !['/subaccounts', '/audit-logs'].includes(item.path)) : [homeItem, mainItems[4]!, pricingItem])
+const visibleHelpItems = computed(() => authenticated.value ? helpItems : helpItems.filter(item => item.path === '/help/docs'))
+const current = computed(() => [homeItem, ...mainItems, pricingItem, ...helpItems].find(item => item.path === route.path || route.path.startsWith(item.path + '/')) ?? mainItems[0]!)
 const helpActive = computed(() => route.path.startsWith('/help'))
 const pageLabel = computed(() => current.value.title)
 function logout() {
   sessionStorage.removeItem('tokenhub-demo-session')
-  router.replace('/login')
+  authenticated.value = false
+  router.replace('/home')
 }
 watch(() => route.path, path => {
+  authenticated.value = sessionStorage.getItem('tokenhub-demo-session') !== null
   mobileOpen.value = false
   if (path.startsWith('/help')) helpOpen.value = true
   if (isSub.value && path === '/subaccounts') router.replace('/overview')
@@ -56,10 +63,16 @@ watch(() => route.path, path => {
 
 <template>
   <LoginView v-if="route.path === '/login'" />
+  <PublicLayout v-else-if="!authenticated">
+    <HomeView v-if="route.path === '/home'" :authenticated="false" />
+    <PricingView v-else-if="route.path === '/pricing'" />
+    <ModelsView v-else-if="route.path === '/models' || route.path.startsWith('/models/')" :is-sub="false" guest />
+    <DocsView v-else-if="route.path === '/help/docs' || route.path.startsWith('/help/docs/')" :is-sub="false" guest />
+  </PublicLayout>
   <div v-else class="portal" :class="{ compact }">
     <button v-if="mobileOpen" class="mobile-shade" aria-label="关闭菜单" @click="mobileOpen = false" />
     <aside class="sidebar" :class="{ 'mobile-open': mobileOpen }">
-      <RouterLink class="brand" to="/overview" aria-label="TokenHub 首页">
+      <RouterLink class="brand" to="/home" aria-label="TokenHub 首页">
         <span class="brand-mark"><Layers3 :size="23" :stroke-width="2" /></span>
         <span class="brand-text">Token<span>Hub</span><small>用户门户</small></span>
       </RouterLink>
@@ -72,7 +85,7 @@ watch(() => route.path, path => {
           <CircleHelp :size="19" :stroke-width="1.7" /><span>帮助与支持</span><ChevronDown class="help-chevron" :size="15" :class="{ closed: !helpOpen }" />
         </button>
         <div v-if="helpOpen && !compact" class="help-children">
-          <RouterLink v-for="item in helpItems" :key="item.path" :to="item.path" class="child-link" :class="{ selected: (route.path === item.path || route.path.startsWith(item.path + '/')) }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined"><span class="child-dot" />{{ item.title }}</RouterLink>
+          <RouterLink v-for="item in visibleHelpItems" :key="item.path" :to="item.path" class="child-link" :class="{ selected: (route.path === item.path || route.path.startsWith(item.path + '/')) }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined"><span class="child-dot" />{{ item.title }}</RouterLink>
         </div>
       </nav>
       <div class="sidebar-bottom"><span class="environment-dot" /><span class="sidebar-bottom-label">用户门户</span><button class="icon-button collapse-button" :aria-label="compact ? '展开侧栏' : '收起侧栏'" @click="compact = !compact"><ChevronsLeft :size="17" :class="{ rotated: compact }" /></button></div>
@@ -81,21 +94,22 @@ watch(() => route.path, path => {
     <div class="workspace">
       <header class="topbar">
         <div class="breadcrumb"><button class="icon-button mobile-menu" aria-label="打开菜单" @click="mobileOpen = true"><Menu :size="21" /></button><span>用户门户</span><ChevronRight :size="14" /><span v-if="helpActive">帮助与支持</span><ChevronRight v-if="helpActive" :size="14" /><strong>{{ current.title }}</strong></div>
-        <div class="top-actions"><RouterLink class="top-alert-link" to="/alerts" aria-label="查看告警中心"><Bell :size="17" /><span v-if="alertUnread">{{ alertUnread > 99 ? '99+' : alertUnread }}</span></RouterLink><RouterLink class="requirements-link" :class="{ active: route.path === '/requirements' }" to="/requirements"><BookOpen :size="16" />需求文档</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-control account-fixed"><span class="avatar">主</span><span class="account-label">主账户<small>主账户管理员</small></span></div><button class="logout-button" aria-label="退出登录" title="退出登录" @click="logout"><LogOut :size="17" /><span>退出</span></button></div>
+        <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><RouterLink class="top-alert-link" to="/alerts" aria-label="查看告警中心"><Bell :size="17" /><span v-if="alertUnread">{{ alertUnread > 99 ? '99+' : alertUnread }}</span></RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-control account-fixed"><span class="avatar">主</span><span class="account-label">主账户<small>主账户管理员</small></span></div><button class="logout-button" aria-label="退出登录" title="退出登录" @click="logout"><LogOut :size="17" /><span>退出</span></button></template></div>
       </header>
 
       <main>
-        <OverviewView v-if="route.path === '/overview'" :is-sub="isSub" />
+        <HomeView v-if="route.path === '/home'" :authenticated="true" />
+        <PricingView v-else-if="route.path === '/pricing'" />
+        <OverviewView v-else-if="route.path === '/overview'" :is-sub="isSub" />
         <UsageView v-else-if="route.path === '/usage'" :is-sub="isSub" />
-        <ModelsView v-else-if="route.path === '/models' || route.path.startsWith('/models/')" :is-sub="isSub" />
+        <ModelsView v-else-if="route.path === '/models' || route.path.startsWith('/models/')" :is-sub="isSub" :guest="!authenticated" />
         <AlertView v-else-if="route.path === '/alerts' || route.path.startsWith('/alerts/')" :is-sub="isSub" @unread-count="alertUnread = $event" />
         <AuditView v-else-if="route.path === '/audit-logs'" :is-sub="isSub" />
         <AnnouncementsView v-else-if="route.path === '/help/announcements' || route.path.startsWith('/help/announcements/')" :is-sub="isSub" />
-        <DocsView v-else-if="route.path === '/help/docs' || route.path.startsWith('/help/docs/')" :is-sub="isSub" />
+        <DocsView v-else-if="route.path === '/help/docs' || route.path.startsWith('/help/docs/')" :is-sub="isSub" :guest="!authenticated" />
         <TicketsView v-else-if="route.path === '/help/tickets' || route.path.startsWith('/help/tickets/')" :is-sub="isSub" />
-        <RequirementsView v-else-if="route.path === '/requirements'" />
         <div v-else class="page-heading"><div><h1>{{ current.title }}</h1><p>{{ current.description }}</p></div><RouterLink v-if="route.path !== '/help/docs'" class="docs-link" to="/help/docs"><BookOpen :size="16" />接入文档<ArrowUpRight :size="15" /></RouterLink></div>
-        <section v-if="!['/overview', '/usage', '/audit-logs', '/requirements'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/help/announcements') && !route.path.startsWith('/help/docs') && !route.path.startsWith('/help/tickets')" class="page-panel" :aria-label="pageLabel">
+        <section v-if="!['/home', '/pricing', '/overview', '/usage', '/audit-logs'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/help/announcements') && !route.path.startsWith('/help/docs') && !route.path.startsWith('/help/tickets')" class="page-panel" :aria-label="pageLabel">
           <div class="panel-header"><span>{{ current.title }}</span><span class="placeholder-badge">页面预留</span></div>
           <div class="empty-canvas">
             <div class="empty-art"><div class="art-halo" /><div class="art-window"><div class="art-window-bar"><i /><i /><i /></div><div class="art-window-body"><span class="art-mini-icon"><component :is="current.icon" :size="23" :stroke-width="1.4" /></span><div class="art-lines"><i /><i /></div></div><div class="art-skeleton"><i /><i /><i /></div></div><span class="art-corner"><PanelTop :size="17" /></span></div>

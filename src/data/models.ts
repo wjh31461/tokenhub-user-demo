@@ -10,6 +10,7 @@ export interface ModelPriceItem {
 }
 
 export interface CatalogModel {
+  manufacturer: string
   id: string
   name: string
   code: string
@@ -58,7 +59,7 @@ export const protocolLabels: Record<Protocol, string> = {
 
 export const catalogModels: CatalogModel[] = [
   {
-    id: 'model-deepseek-v3', name: 'DeepSeek V3', code: 'deepseek-v3',
+    manufacturer: 'DeepSeek', id: 'model-deepseek-v3', name: 'DeepSeek V3', code: 'deepseek-v3',
     summary: '适用于通用对话、内容生成和复杂任务处理的高性能文本模型。',
     description: '面向通用文本生成场景开放，支持流式输出、工具调用和结构化输出。平台会在用户不可见的可用渠道间完成路由与容灾。',
     type: 'TEXT_GENERATION', capabilities: ['TOOL_CALLING', 'LONG_CONTEXT', 'THINKING', 'STRUCTURED_OUTPUT', 'STREAMING'],
@@ -73,7 +74,7 @@ export const catalogModels: CatalogModel[] = [
     limitations: ['视觉内容需要选择支持视觉输入的模型。', '具体请求体大小同时受开放接口限制。'],
   },
   {
-    id: 'model-qwen-max', name: 'Qwen Max', code: 'qwen-max',
+    manufacturer: '阿里云', id: 'model-qwen-max', name: 'Qwen Max', code: 'qwen-max',
     summary: '适合中文理解、企业知识问答和多轮对话的通用模型。',
     description: '在中文理解与生成场景中表现稳定，支持工具调用、思考模式和长上下文。',
     type: 'TEXT_GENERATION', capabilities: ['TOOL_CALLING', 'LONG_CONTEXT', 'THINKING', 'STRUCTURED_OUTPUT', 'STREAMING'],
@@ -84,7 +85,7 @@ export const catalogModels: CatalogModel[] = [
     limitations: ['额度扣减结果以用量中心最终记录为准。'],
   },
   {
-    id: 'model-glm-4', name: 'GLM-4 Plus', code: 'glm-4-plus',
+    manufacturer: '智谱', id: 'model-glm-4', name: 'GLM-4 Plus', code: 'glm-4-plus',
     summary: '兼顾中文写作、信息提取与工具编排的文本生成模型。',
     description: '适用于企业办公、摘要提取和 Agent 工具编排等文本场景。',
     type: 'TEXT_GENERATION', capabilities: ['TOOL_CALLING', 'LONG_CONTEXT', 'STREAMING'],
@@ -98,7 +99,7 @@ export const catalogModels: CatalogModel[] = [
     limitations: ['当前不支持视觉输入。', '结构化输出能力未公开承诺。'],
   },
   {
-    id: 'model-vision-pro', name: 'Vision Pro', code: 'vision-pro',
+    manufacturer: '平台演示', id: 'model-vision-pro', name: 'Vision Pro', code: 'vision-pro',
     summary: '支持图片理解、图表分析与多模态内容问答。',
     description: '面向图片理解和图文混合问答场景开放，可通过统一对话接口提交视觉内容。',
     type: 'MULTIMODAL', capabilities: ['VISION_INPUT', 'LONG_CONTEXT', 'STRUCTURED_OUTPUT', 'STREAMING'],
@@ -113,7 +114,7 @@ export const catalogModels: CatalogModel[] = [
     limitations: ['不用于生成图片。', '单次可提交的图片数量以接入文档为准。'],
   },
   {
-    id: 'model-coder-pro', name: 'Coder Pro', code: 'coder-pro',
+    manufacturer: '平台演示', id: 'model-coder-pro', name: 'Coder Pro', code: 'coder-pro',
     summary: '面向代码生成、补全、解释和重构场景优化。',
     description: '适合研发辅助和代码 Agent 使用，支持工具调用及长上下文代码理解。',
     type: 'TEXT_GENERATION', capabilities: ['TOOL_CALLING', 'LONG_CONTEXT', 'STRUCTURED_OUTPUT', 'STREAMING'],
@@ -124,7 +125,7 @@ export const catalogModels: CatalogModel[] = [
     limitations: ['当前账户服务暂未包含该模型。'],
   },
   {
-    id: 'model-embed-large', name: 'Embedding Large', code: 'embedding-large',
+    manufacturer: '平台演示', id: 'model-embed-large', name: 'Embedding Large', code: 'embedding-large',
     summary: '用于语义检索、知识库召回和文本聚类的向量模型。',
     description: '将文本转换为高维向量，适用于企业知识库、RAG 检索和相似度计算。',
     type: 'EMBEDDING', capabilities: [], context: '8,192 Token', maxOutput: null, protocols: ['OPENAI_EMBEDDINGS'],
@@ -134,7 +135,7 @@ export const catalogModels: CatalogModel[] = [
     limitations: ['只返回向量，不生成自然语言内容。'],
   },
   {
-    id: 'model-image-create', name: 'Image Creator', code: 'image-creator',
+    manufacturer: '平台演示', id: 'model-image-create', name: 'Image Creator', code: 'image-creator',
     summary: '根据文本描述生成适用于创意设计和内容生产的图片。',
     description: '通过平台统一图像生成接口按张生成图片，支持常见宽高比例。',
     type: 'IMAGE_GENERATION', capabilities: [], context: null, maxOutput: null, protocols: ['IMAGE_API'],
@@ -147,7 +148,7 @@ export const catalogModels: CatalogModel[] = [
     limitations: ['不使用 Token 作为计量单位。', '生成内容须符合平台内容安全规范。'],
   },
   {
-    id: 'model-chat-legacy', name: 'Chat Standard', code: 'chat-standard',
+    manufacturer: '平台演示', id: 'model-chat-legacy', name: 'Chat Standard', code: 'chat-standard',
     summary: '基础对话模型，已进入下架迁移期。',
     description: '该模型已进入迁移期，现有用户可继续使用至停止服务时间。建议尽快迁移至 DeepSeek V3。',
     type: 'TEXT_GENERATION', capabilities: ['STREAMING'], context: '16,000 Token', maxOutput: '4,096 Token', protocols: ['OPENAI_CHAT'],

@@ -10,7 +10,7 @@ import {
 import { docArticles, docsCategories, kindLabels, type DocArticle, type DocSection } from '../data/docs'
 import './docs.css'
 
-const props = defineProps<{ isSub: boolean }>()
+const props = defineProps<{ isSub: boolean; guest?: boolean }>()
 const route = useRoute()
 const router = useRouter()
 const searchDraft = ref('')
@@ -189,7 +189,7 @@ onBeforeUnmount(() => clearTimeout(copyTimer))
         <section v-else class="docs-missing"><FileText :size="31" /><h2>文档不存在或无访问权限</h2><p>该文档可能已迁移、撤回，或不在当前身份可见范围内。</p><button @click="router.push('/help/docs')">返回文档首页</button></section>
       </section>
 
-      <aside v-if="selected" class="docs-toc"><strong>本页目录</strong><button v-for="section in selected.sections" :key="section.id" :class="{ active: activeSection === section.id }" @click="jump(section.id)">{{ section.title }}</button><div class="docs-toc-divider" /><span>当前身份</span><p>{{ isSub ? '研发子账户' : '主账户' }}</p><RouterLink :to="`/help/tickets/new?sourceType=DOC&sourceId=${selected.slug}`">仍需帮助？<ExternalLink :size="12" /></RouterLink></aside>
+      <aside v-if="selected" class="docs-toc"><strong>本页目录</strong><button v-for="section in selected.sections" :key="section.id" :class="{ active: activeSection === section.id }" @click="jump(section.id)">{{ section.title }}</button><div class="docs-toc-divider" /><span>当前身份</span><p>{{ guest ? '访客' : isSub ? '研发子账户' : '主账户' }}</p><RouterLink :to="`/help/tickets/new?sourceType=DOC&sourceId=${selected.slug}`">仍需帮助？<ExternalLink :size="12" /></RouterLink></aside>
     </div>
   </div>
 </template>

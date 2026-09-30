@@ -79,7 +79,7 @@ onBeforeUnmount(() => window.clearInterval(timer))
     </section>
 
     <section class="login-panel">
-      <div class="login-card">
+      <div class="login-card"><RouterLink class="login-return" to="/home">← 返回首页</RouterLink>
         <div class="login-card-icon"><LockKeyhole :size="23" /></div>
         <h2>登录用户门户</h2>
         <p>使用已开通 TokenHub 服务的手机号登录</p>
