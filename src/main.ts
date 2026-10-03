@@ -6,6 +6,7 @@ const paths = ['/home', '/overview', '/services', '/api-keys', '/usage', '/prici
 const router = createRouter({ history: createWebHashHistory(), routes: [
   { path: '/', redirect: () => sessionStorage.getItem('tokenhub-demo-session') ? '/models' : '/home' },
   { path: '/login', component: { template: '<div />' }, meta: { public: true } },
+  { path: '/account/alerts', redirect: to => ({ path: '/alerts', query: to.query }) },
   ...paths.map(path => ({ path, component: { template: '<div />' }, meta: { public: path === '/home' || path === '/pricing' || path.startsWith('/help/docs') } })),
   { path: '/:pathMatch(.*)*', redirect: '/home' }
 ] })
