@@ -54,8 +54,8 @@ async function login() {
   }))
   const redirect = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/')
     ? route.query.redirect
-    : '/overview'
-  await router.replace(redirect === '/login' ? '/overview' : redirect)
+    : '/models'
+  await router.replace(redirect === '/login' ? '/models' : redirect)
 }
 
 onBeforeUnmount(() => window.clearInterval(timer))

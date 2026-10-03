@@ -65,11 +65,11 @@ export const userKeys = [
   { id: 'key-sub-bot', label: '客服机器人 Key', actorId: 'account-sub-b', serviceId: 'svc-model-pro' },
 ]
 
-const start = Date.UTC(2026, 7, 15, 2, 0, 0)
+const start = Date.UTC(2026, 8, 1, 2, 0, 0)
 const calls: UsageCall[] = []
 
 for (let index = 0; index < 92; index += 1) {
-  const dayOffset = (index * 7) % 45
+  const dayOffset = (index * 7) % 32
   const hour = 8 + (index * 3) % 11
   const date = new Date(start + dayOffset * 86_400_000 + hour * 3_600_000 + (index % 17) * 61_000)
   const service = services[index % (index % 7 === 0 ? 3 : 2)]!
