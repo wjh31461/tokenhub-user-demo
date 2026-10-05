@@ -69,12 +69,12 @@ function exportLogs() {
       const bytes = createAuditWorkbook(rows)
       fileUrl.value = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }))
       const typeLabel = filters.operationType ? operationLabels[filters.operationType as keyof typeof operationLabels] : '全部'
-      fileName.value = `审计日志_${filters.start}_${filters.end}_${typeLabel}.xlsx`; exportCount.value = matched.length
+      fileName.value = `操作审计_${filters.start}_${filters.end}_${typeLabel}.xlsx`; exportCount.value = matched.length
       exportState.value = expired ? 'expired' : 'completed'
       exportMessage.value = expired ? '文件已过期，请重新导出' : `${fileName.value} 已生成，共 ${matched.length} 条记录`
       // Demo-only suggested export event, added after generation and not included in this file.
       const now = new Date().toISOString()
-      records.value.unshift({ id: `audit-export-${task}-${Date.now()}`, occurredAt: now, actorName: '张三', actorId: 'user-demo-001', targetType: 'AUDIT_LOG', targetName: `${filters.start} 至 ${filters.end}`, targetId: null, operationType: 'EXPORT', result: 'SUCCESS', summary: '审计日志文件生成完成。', resultMessage: `范围：${filters.start} 至 ${filters.end}；操作类型：${filters.operationType ? operationLabels[filters.operationType as keyof typeof operationLabels] : '全部'}；${matched.length} 条记录。`, changes: [] })
+      records.value.unshift({ id: `audit-export-${task}-${Date.now()}`, occurredAt: now, actorName: '张三', actorId: 'user-demo-001', targetType: 'AUDIT_LOG', targetName: `${filters.start} 至 ${filters.end}`, targetId: null, operationType: 'EXPORT', result: 'SUCCESS', summary: '操作审计文件生成完成。', resultMessage: `范围：${filters.start} 至 ${filters.end}；操作类型：${filters.operationType ? operationLabels[filters.operationType as keyof typeof operationLabels] : '全部'}；${matched.length} 条记录。`, changes: [] })
     } catch { clearFile(); exportState.value = 'failed'; exportMessage.value = '导出生成失败，请重试' }
   }, 600)
 }
@@ -95,7 +95,7 @@ onBeforeUnmount(() => { activeExport++; clearTimeout(timer); clearTimeout(export
 
 <template>
   <div class="audit-view">
-    <div class="audit-heading"><div><h1>审计日志</h1><p>查看当前账户的关键操作记录。</p></div><div class="audit-heading-actions"><button class="audit-secondary" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button><button class="audit-primary" :disabled="loading || error || exportState === 'running'" @click="exportLogs"><Download :size="15" />{{ exportState === 'running' ? '正在生成…' : '导出' }}</button></div></div>
+    <div class="audit-heading"><div><h1>操作审计</h1><p>查看当前账户的关键操作记录。</p></div><div class="audit-heading-actions"><button class="audit-secondary" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{ spinning: loading }" />刷新</button><button class="audit-primary" :disabled="loading || error || exportState === 'running'" @click="exportLogs"><Download :size="15" />{{ exportState === 'running' ? '正在生成…' : '导出' }}</button></div></div>
     <div class="demo-toolbar"><label>页面场景<select v-model="scenario" aria-label="审计页面场景"><option value="normal">正常记录</option><option value="empty">暂无记录</option><option value="error">查询失败</option><option value="detailError">详情无法查看</option><option value="exportError">导出失败</option><option value="expired">导出文件过期</option></select></label></div>
     <form class="audit-card audit-filters" @submit.prevent="query">
       <div class="audit-filter-grid"><label class="audit-date-field">操作时间<div class="audit-date-controls"><select v-model="draft.range" aria-label="操作时间范围" @change="preset"><option value="7">近7天</option><option value="30">近30天</option><option value="custom">自定义日期</option></select><input v-model="draft.start" type="date" aria-label="开始日期" :max="today" @input="draft.range = 'custom'"><span>至</span><input v-model="draft.end" type="date" aria-label="结束日期" :max="today" @input="draft.range = 'custom'"></div></label><label>操作类型<select v-model="draft.operationType" aria-label="操作类型"><option value="">全部</option><option v-for="(label, code) in operationLabels" :key="code" :value="code">{{ label }}</option></select></label></div>

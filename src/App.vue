@@ -35,7 +35,7 @@ const mainItems = [
   { path: '/models', title: '模型目录', icon: Boxes, description: '探索平台提供的模型能力与接入信息。' },
   { path: '/subaccounts', title: '子账户管理', icon: UsersRound, description: '管理子账户及其可使用的服务额度。' },
   { path: '/alerts', title: '告警管理', icon: Bell, description: '查看余额、Token 包余量与异常请求告警。' },
-  { path: '/audit-logs', title: '审计日志', icon: ClipboardList, description: '查看当前账户的关键操作记录。' }
+  { path: '/audit-logs', title: '操作审计', icon: ClipboardList, description: '查看当前账户的关键操作记录。' }
 ]
 const homeItem = { path: '/home', title: '首页', icon: House, description: '了解 TokenHub 平台与模型接入。' }
 const pricingItem = { path: '/pricing', title: '定价', icon: BadgeDollarSign, description: '了解模型价格与计费方式。' }
@@ -92,7 +92,7 @@ watch(() => route.path, path => {
     <div class="workspace">
       <header class="topbar">
         <div class="breadcrumb"><button class="icon-button mobile-menu" aria-label="打开菜单" @click="mobileOpen = true"><Menu :size="21" /></button><span>用户门户</span><ChevronRight :size="14" /><strong>{{ current.title }}</strong></div>
-        <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><RouterLink class="top-announcements" to="/announcements" :class="{ active: route.path.startsWith('/announcements') }"><Megaphone :size="16" />平台公告</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-menu-control" @keydown.esc="accountMenuOpen = false"><button class="account-control account-fixed" aria-label="我的头像" :aria-expanded="accountMenuOpen" aria-controls="account-menu" @click="accountMenuOpen = !accountMenuOpen"><span class="avatar">张</span><span class="account-label">张三<small>当前账户</small></span><ChevronDown :size="14" /></button><template v-if="accountMenuOpen"><button class="account-menu-backdrop" aria-label="关闭头像菜单" @click="accountMenuOpen = false" /><div id="account-menu" class="account-menu"><RouterLink to="/audit-logs" @click="accountMenuOpen = false"><ClipboardList :size="16" />审计日志</RouterLink><button @click="logout"><LogOut :size="16" />退出登录</button></div></template></div></template></div>
+        <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><RouterLink class="top-announcements" to="/announcements" :class="{ active: route.path.startsWith('/announcements') }"><Megaphone :size="16" />平台公告</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-menu-control" @keydown.esc="accountMenuOpen = false"><button class="account-control account-fixed" aria-label="我的头像" :aria-expanded="accountMenuOpen" aria-controls="account-menu" @click="accountMenuOpen = !accountMenuOpen"><span class="avatar">张</span><span class="account-label">张三<small>当前账户</small></span><ChevronDown :size="14" /></button><template v-if="accountMenuOpen"><button class="account-menu-backdrop" aria-label="关闭头像菜单" @click="accountMenuOpen = false" /><div id="account-menu" class="account-menu"><RouterLink to="/audit-logs" @click="accountMenuOpen = false"><ClipboardList :size="16" />操作审计</RouterLink><button @click="logout"><LogOut :size="16" />退出登录</button></div></template></div></template></div>
       </header>
 
       <main>

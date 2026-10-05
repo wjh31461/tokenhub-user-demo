@@ -10,7 +10,7 @@ export interface AuditRecord {
 }
 export const operationLabels: Record<AuditOperation, string> = { CREATE: '创建', EDIT: '编辑', PAUSE: '暂停', RESUME: '恢复', DELETE: '删除', EXPORT: '导出' }
 export const resultLabels = { SUCCESS: '成功', FAILURE: '失败' }
-export const targetLabels = { API_KEY: '密钥', PROFILE: '个人资料', AUDIT_LOG: '审计日志' }
+export const targetLabels = { API_KEY: '密钥', PROFILE: '个人资料', AUDIT_LOG: '操作审计' }
 export function valueLabel(value?: AuditValue) {
   if (!value || value.state === 'UNKNOWN') return '未记录'
   if (value.state === 'EMPTY') return '未设置'
