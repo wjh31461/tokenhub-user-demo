@@ -67,7 +67,7 @@ async function copyCode(section: DocSection) {
   catch { copied.value = ''; copyError.value = key }
   clearTimeout(copyTimer); copyTimer = setTimeout(() => { copied.value = ''; copyError.value = '' }, 3000)
 }
-function ticketLocation(article: DocArticle) { return { path: '/help/tickets/new', query: { sourceType: 'DOC', sourceId: article.slug } } }
+function ticketLocation(article: DocArticle) { return { path: '/tickets/new', query: { sourceType: 'DOC', sourceId: article.slug } } }
 watch(() => route.fullPath, async (value, old) => {
   const legacyModel = typeof route.query.model === 'string' ? catalogModels.find(model => model.code === route.query.model) : undefined
   if (isHome.value && legacyModel) { router.replace(modelDocEntry(legacyModel.id)); return }

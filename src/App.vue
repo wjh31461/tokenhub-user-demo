@@ -19,14 +19,13 @@ import './components/login.css'
 import './components/account-menu.css'
 import './components/docs-layout.css'
 import { useRoute, useRouter } from 'vue-router'
-import { Layers3, LayoutDashboard, Package, KeyRound, ChartNoAxesCombined, Boxes, UsersRound, Bell, ClipboardList, CircleHelp, BookOpen, Megaphone, MessagesSquare, ChevronDown, ChevronRight, ChevronsLeft, Menu, ArrowUpRight, PanelTop, LogOut, BadgeDollarSign, House } from 'lucide-vue-next'
+import { Layers3, LayoutDashboard, Package, KeyRound, ChartNoAxesCombined, Boxes, UsersRound, Bell, ClipboardList, BookOpen, Megaphone, MessagesSquare, ChevronDown, ChevronRight, ChevronsLeft, Menu, ArrowUpRight, PanelTop, LogOut, BadgeDollarSign, House } from 'lucide-vue-next'
 const route = useRoute()
 const router = useRouter()
 const authenticated = ref(sessionStorage.getItem('tokenhub-demo-session') !== null)
 const isSub = ref(false)
 const mobileOpen = ref(false)
 const compact = ref(false)
-const helpOpen = ref(true)
 const accountMenuOpen = ref(false)
 const mainItems = [
   { path: '/overview', title: '概览', icon: LayoutDashboard, description: '在这里了解账户、服务与近期用量。' },
@@ -43,14 +42,12 @@ const pricingItem = { path: '/pricing', title: '定价', icon: BadgeDollarSign, 
 const helpItems = [
   { path: '/docs', title: '接入文档', icon: BookOpen, description: '查阅 API 接入指南与使用说明。' },
   { path: '/announcements', title: '平台公告', icon: Megaphone, description: '查看模型上下架、维护通知等平台消息。' },
-  { path: '/help/tickets', title: '我的工单', icon: MessagesSquare, description: '提交问题反馈并跟踪处理进展。' }
+  { path: '/tickets', title: '工单反馈', icon: MessagesSquare, description: '提交问题反馈并跟踪处理进展。' }
 ]
 const visibleItems = computed(() => authenticated.value ? [homeItem, ...mainItems.slice(0, 5), pricingItem, ...mainItems.slice(5)].filter(item => !isSub.value || !['/subaccounts', '/audit-logs'].includes(item.path)) : [homeItem, mainItems[4]!, pricingItem])
-const visibleHelpItems = computed(() => authenticated.value ? helpItems.filter(item => !['/docs', '/announcements'].includes(item.path)) : [])
 const accountPaths = ['/services', '/api-keys', '/usage', '/alerts']
 const accountItems = computed(() => visibleItems.value.filter(item => accountPaths.includes(item.path)))
 const current = computed(() => [homeItem, ...mainItems, pricingItem, ...helpItems].find(item => item.path === route.path || route.path.startsWith(item.path + '/')) ?? mainItems[0]!)
-const helpActive = computed(() => route.path.startsWith('/help'))
 const pageLabel = computed(() => current.value.title)
 function logout() {
   accountMenuOpen.value = false
@@ -62,7 +59,6 @@ watch(() => route.path, path => {
   authenticated.value = sessionStorage.getItem('tokenhub-demo-session') !== null
   mobileOpen.value = false
   accountMenuOpen.value = false
-  if (path.startsWith('/help')) helpOpen.value = true
   if (isSub.value && path === '/subaccounts') router.replace('/overview')
 })
 </script>
@@ -87,21 +83,15 @@ watch(() => route.path, path => {
         </RouterLink>
         <div v-if="!compact" class="nav-caption">账户管理</div>
         <RouterLink v-for="item in accountItems" :key="item.path" :to="item.path" class="nav-link" :title="item.title" :class="{ selected: route.path === item.path || route.path.startsWith(item.path + '/') }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined"><component :is="item.icon" :size="19" :stroke-width="1.7" /><span>{{ item.title }}</span></RouterLink>
-        <div class="nav-divider" />
-        <button class="nav-link help-toggle" :class="{ 'help-selected': helpActive }" :aria-expanded="helpOpen" title="帮助与支持" @click="helpOpen = !helpOpen; compact = false">
-          <CircleHelp :size="19" :stroke-width="1.7" /><span>帮助与支持</span><ChevronDown class="help-chevron" :size="15" :class="{ closed: !helpOpen }" />
-        </button>
-        <div v-if="helpOpen && !compact" class="help-children">
-          <RouterLink v-for="item in visibleHelpItems" :key="item.path" :to="item.path" class="child-link" :class="{ selected: (route.path === item.path || route.path.startsWith(item.path + '/')) }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined"><span class="child-dot" />{{ item.title }}</RouterLink>
-        </div>
       </nav>
       <div class="sidebar-fixed-docs"><RouterLink to="/docs" class="nav-link" title="接入文档" :class="{ selected: route.path === '/docs' || route.path.startsWith('/docs/') }" :aria-current="route.path === '/docs' || route.path.startsWith('/docs/') ? 'page' : undefined"><BookOpen :size="19" :stroke-width="1.7" /><span>接入文档</span></RouterLink></div>
+      <div class="sidebar-fixed-tickets"><RouterLink to="/tickets" class="nav-link" title="工单反馈" :class="{ selected: route.path === '/tickets' || route.path.startsWith('/tickets/') }" :aria-current="route.path === '/tickets' || route.path.startsWith('/tickets/') ? 'page' : undefined"><MessagesSquare :size="19" :stroke-width="1.7" /><span>工单反馈</span></RouterLink></div>
       <div class="sidebar-bottom"><span class="environment-dot" /><span class="sidebar-bottom-label">用户门户</span><button class="icon-button collapse-button" :aria-label="compact ? '展开侧栏' : '收起侧栏'" @click="compact = !compact"><ChevronsLeft :size="17" :class="{ rotated: compact }" /></button></div>
     </aside>
 
     <div class="workspace">
       <header class="topbar">
-        <div class="breadcrumb"><button class="icon-button mobile-menu" aria-label="打开菜单" @click="mobileOpen = true"><Menu :size="21" /></button><span>用户门户</span><ChevronRight :size="14" /><span v-if="helpActive">帮助与支持</span><ChevronRight v-if="helpActive" :size="14" /><strong>{{ current.title }}</strong></div>
+        <div class="breadcrumb"><button class="icon-button mobile-menu" aria-label="打开菜单" @click="mobileOpen = true"><Menu :size="21" /></button><span>用户门户</span><ChevronRight :size="14" /><strong>{{ current.title }}</strong></div>
         <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><RouterLink class="top-announcements" to="/announcements" :class="{ active: route.path.startsWith('/announcements') }"><Megaphone :size="16" />平台公告</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-menu-control" @keydown.esc="accountMenuOpen = false"><button class="account-control account-fixed" aria-label="我的头像" :aria-expanded="accountMenuOpen" aria-controls="account-menu" @click="accountMenuOpen = !accountMenuOpen"><span class="avatar">张</span><span class="account-label">张三<small>当前账户</small></span><ChevronDown :size="14" /></button><template v-if="accountMenuOpen"><button class="account-menu-backdrop" aria-label="关闭头像菜单" @click="accountMenuOpen = false" /><div id="account-menu" class="account-menu"><RouterLink to="/audit-logs" @click="accountMenuOpen = false"><ClipboardList :size="16" />审计日志</RouterLink><button @click="logout"><LogOut :size="16" />退出登录</button></div></template></div></template></div>
       </header>
 
@@ -115,9 +105,9 @@ watch(() => route.path, path => {
         <AuditView v-else-if="route.path === '/audit-logs'" />
         <AnnouncementsView v-else-if="route.path === '/announcements' || route.path.startsWith('/announcements/')" />
         <DocsView v-else-if="route.path === '/docs' || route.path.startsWith('/docs/')" />
-        <TicketsView v-else-if="route.path === '/help/tickets' || route.path.startsWith('/help/tickets/')" :is-sub="isSub" />
+        <TicketsView v-else-if="route.path === '/tickets' || route.path.startsWith('/tickets/')" />
         <div v-else class="page-heading"><div><h1>{{ current.title }}</h1><p>{{ current.description }}</p></div><RouterLink class="docs-link" to="/docs"><BookOpen :size="16" />接入文档<ArrowUpRight :size="15" /></RouterLink></div>
-        <section v-if="!['/home', '/pricing', '/overview', '/usage', '/audit-logs'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/announcements') && !route.path.startsWith('/docs') && !route.path.startsWith('/help/tickets')" class="page-panel" :aria-label="pageLabel">
+        <section v-if="!['/home', '/pricing', '/overview', '/usage', '/audit-logs'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/announcements') && !route.path.startsWith('/docs') && !route.path.startsWith('/tickets')" class="page-panel" :aria-label="pageLabel">
           <div class="panel-header"><span>{{ current.title }}</span><span class="placeholder-badge">页面预留</span></div>
           <p v-if="route.path === '/services' && route.query.section === 'keys'" class="docs-demo-note">已定位到“我的服务”的密钥管理入口。当前服务页面仍为演示预留，尚未接入实际创建密钥功能。</p>
           <div class="empty-canvas">

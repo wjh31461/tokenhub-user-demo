@@ -3,13 +3,16 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './App.vue'
 import './style.css'
 import { legacyDocSlugs } from './data/docs'
-const paths = ['/home', '/overview', '/services', '/api-keys', '/usage', '/pricing', '/models', '/models/:modelId', '/subaccounts', '/alerts', '/audit-logs', '/docs', '/docs/search', '/docs/articles/:articleSlug', '/announcements', '/announcements/:announcementId', '/help/tickets', '/help/tickets/new', '/help/tickets/:ticketId', '/services/:serviceId', '/alerts/:alertId']
+const paths = ['/home', '/overview', '/services', '/api-keys', '/usage', '/pricing', '/models', '/models/:modelId', '/subaccounts', '/alerts', '/audit-logs', '/docs', '/docs/search', '/docs/articles/:articleSlug', '/announcements', '/announcements/:announcementId', '/tickets', '/tickets/new', '/tickets/:ticketId', '/services/:serviceId', '/alerts/:alertId']
 const router = createRouter({ history: createWebHashHistory(), routes: [
   { path: '/', redirect: () => sessionStorage.getItem('tokenhub-demo-session') ? '/models' : '/home' },
   { path: '/login', component: { template: '<div />' }, meta: { public: true } },
   { path: '/account/alerts', redirect: to => ({ path: '/alerts', query: to.query }) },
   { path: '/help/announcements', redirect: to => ({ path: '/announcements', query: to.query }) },
   { path: '/help/announcements/:announcementId', redirect: to => ({ path: `/announcements/${to.params.announcementId}`, query: to.query }) },
+  { path: '/help/tickets', redirect: to => ({ path: '/tickets', query: to.query }) },
+  { path: '/help/tickets/new', redirect: to => ({ path: '/tickets/new', query: to.query }) },
+  { path: '/help/tickets/:ticketId', redirect: to => ({ path: `/tickets/${to.params.ticketId}`, query: to.query }) },
   { path: '/help/docs', redirect: to => ({ path: '/docs', query: to.query, hash: to.hash }) },
   { path: '/help/docs/search', redirect: to => ({ path: '/docs/search', query: to.query }) },
   { path: '/help/docs/:articleSlug(.*)', redirect: to => ({ path: `/docs/articles/${legacyDocSlugs[String(to.params.articleSlug)] || to.params.articleSlug}`, query: to.query, hash: to.hash }) },
