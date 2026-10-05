@@ -42,11 +42,6 @@ const alerts = [
   { id: 'request-warning', title: '检测到连续异常调用', service: 'Token 服务 · 专业版', time: '09-28 11:08', level: '调用异常', read: false },
   { id: 'quota-exhausted', title: '历史急救包额度已耗尽', service: 'Token 服务 · 专业版', time: '09-27 16:45', level: '额度提醒', read: true }
 ]
-const announcements = [
-  { id: 'integration-guide', category: '使用指南', title: '欢迎使用 TokenHub：模型接入与 API 密钥使用指南', date: '2026-09-25', pinned: true },
-  { id: 'model-update', category: '模型动态', title: '模型目录更新：查看最新可用模型与能力说明', date: '2026-09-28', pinned: false },
-  { id: 'maintenance', category: '维护通知', title: '平台例行维护通知（10 月 1 日）', date: '2026-09-27', pinned: false }
-]
 const usageLink = computed(() => ({ path: '/usage', query: { tab: 'statistics', startDate: daily.value[0]!.date, endDate } }))
 const failed = computed(() => scenario.value === 'error' && !serviceRecovered.value)
 function refresh() {
@@ -104,7 +99,6 @@ const exact = (n: number) => n.toLocaleString('zh-CN')
       <section class="overview-section quick-section"><div class="section-heading"><div><h2>快捷操作</h2><p>从这里开始使用 TokenHub</p></div><Zap :size="17" class="muted-icon" /></div><div class="quick-grid"><button class="quick-card" :disabled="scenario==='empty'" :title="scenario==='empty' ? '当前身份未关联可创建密钥的 Token 服务' : ''" @click="$router.push('/api-keys?action=create')"><span class="quick-icon"><KeyRound :size="19" /></span><span><strong>创建 API 密钥</strong><small>{{ scenario === 'empty' ? '暂无可用 Token 服务' : '连接您的应用与模型' }}</small></span><ArrowUpRight :size="13" /></button><RouterLink class="quick-card" to="/usage?tab=statistics"><span class="quick-icon"><Activity :size="19" /></span><span><strong>查看用量</strong><small>追踪每一次模型调用</small></span><ArrowUpRight :size="13" /></RouterLink><RouterLink class="quick-card" to="/help/docs"><span class="quick-icon"><BookOpen :size="19" /></span><span><strong>接入文档</strong><small>快速完成 API 接入</small></span><ArrowUpRight :size="13" /></RouterLink><RouterLink v-if="!isSub" class="quick-card" to="/subaccounts"><span class="quick-icon"><UsersRound :size="19" /></span><span><strong>子账户管理</strong><small>管理团队成员与配额</small></span><ArrowUpRight :size="13" /></RouterLink></div><div class="quick-hint"><ShieldCheck :size="13" />请妥善保管密钥，避免将其公开分享。</div></section>
       <section v-if="!isSub" class="overview-section alerts-section"><div class="section-heading"><div><h2>告警摘要<span v-if="scenario!=='empty'" class="unread-pill">2 条未读</span></h2><p>数据截至 09-28 14:35</p></div><RouterLink class="text-link" to="/alerts">查看全部<ChevronRight :size="13" /></RouterLink></div><div v-if="scenario==='empty'" class="section-empty small"><Bell :size="23" /><p>暂无告警</p></div><RouterLink v-for="alert in scenario==='empty' ? [] : alerts" :key="alert.id" :to="`/alerts/${alert.id}`" class="alert-row"><span class="alert-symbol" :class="{ read: alert.read }"><TriangleAlert :size="15" /></span><div><strong>{{ alert.title }}<i v-if="!alert.read" class="unread-dot" /></strong><small>{{ alert.service }}<span>·</span>{{ alert.time }}</small></div><span class="alert-level">{{ alert.read ? '已读' : alert.level }}</span><ChevronRight :size="12" /></RouterLink></section>
     </div>
-    <section class="overview-section announcements-section"><div class="section-heading"><div><h2>平台公告</h2><p>数据截至 09-28 10:00</p></div><RouterLink class="text-link" to="/help/announcements">查看全部<ChevronRight :size="13" /></RouterLink></div><RouterLink v-for="item in announcements" :key="item.id" :to="`/help/announcements/${item.id}`" class="announcement-row"><span class="announcement-category" :class="{ blue: item.category==='模型动态' }">{{ item.category }}</span><span class="announcement-title">{{ item.title }}<span v-if="item.pinned" class="pinned-label">置顶</span></span><time>{{ item.date }}</time><ChevronRight :size="13" /></RouterLink></section>
     <p v-if="refreshing" class="demo-refresh-note" aria-live="polite">正在刷新页面…</p>
   </div>
 </template>

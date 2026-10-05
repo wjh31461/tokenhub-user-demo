@@ -42,11 +42,11 @@ const homeItem = { path: '/home', title: '首页', icon: House, description: '�
 const pricingItem = { path: '/pricing', title: '定价', icon: BadgeDollarSign, description: '了解模型价格与计费方式。' }
 const helpItems = [
   { path: '/docs', title: '接入文档', icon: BookOpen, description: '查阅 API 接入指南与使用说明。' },
-  { path: '/help/announcements', title: '平台公告', icon: Megaphone, description: '了解模型更新、维护通知与平台动态。' },
+  { path: '/announcements', title: '平台公告', icon: Megaphone, description: '查看模型上下架、维护通知等平台消息。' },
   { path: '/help/tickets', title: '我的工单', icon: MessagesSquare, description: '提交问题反馈并跟踪处理进展。' }
 ]
 const visibleItems = computed(() => authenticated.value ? [homeItem, ...mainItems.slice(0, 5), pricingItem, ...mainItems.slice(5)].filter(item => !isSub.value || !['/subaccounts', '/audit-logs'].includes(item.path)) : [homeItem, mainItems[4]!, pricingItem])
-const visibleHelpItems = computed(() => authenticated.value ? helpItems.filter(item => item.path !== '/docs') : [])
+const visibleHelpItems = computed(() => authenticated.value ? helpItems.filter(item => !['/docs', '/announcements'].includes(item.path)) : [])
 const accountPaths = ['/services', '/api-keys', '/usage', '/alerts']
 const accountItems = computed(() => visibleItems.value.filter(item => accountPaths.includes(item.path)))
 const current = computed(() => [homeItem, ...mainItems, pricingItem, ...helpItems].find(item => item.path === route.path || route.path.startsWith(item.path + '/')) ?? mainItems[0]!)
@@ -102,7 +102,7 @@ watch(() => route.path, path => {
     <div class="workspace">
       <header class="topbar">
         <div class="breadcrumb"><button class="icon-button mobile-menu" aria-label="打开菜单" @click="mobileOpen = true"><Menu :size="21" /></button><span>用户门户</span><ChevronRight :size="14" /><span v-if="helpActive">帮助与支持</span><ChevronRight v-if="helpActive" :size="14" /><strong>{{ current.title }}</strong></div>
-        <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-menu-control" @keydown.esc="accountMenuOpen = false"><button class="account-control account-fixed" aria-label="我的头像" :aria-expanded="accountMenuOpen" aria-controls="account-menu" @click="accountMenuOpen = !accountMenuOpen"><span class="avatar">张</span><span class="account-label">张三<small>当前账户</small></span><ChevronDown :size="14" /></button><template v-if="accountMenuOpen"><button class="account-menu-backdrop" aria-label="关闭头像菜单" @click="accountMenuOpen = false" /><div id="account-menu" class="account-menu"><RouterLink to="/audit-logs" @click="accountMenuOpen = false"><ClipboardList :size="16" />审计日志</RouterLink><button @click="logout"><LogOut :size="16" />退出登录</button></div></template></div></template></div>
+        <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><RouterLink class="top-announcements" to="/announcements" :class="{ active: route.path.startsWith('/announcements') }"><Megaphone :size="16" />平台公告</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-menu-control" @keydown.esc="accountMenuOpen = false"><button class="account-control account-fixed" aria-label="我的头像" :aria-expanded="accountMenuOpen" aria-controls="account-menu" @click="accountMenuOpen = !accountMenuOpen"><span class="avatar">张</span><span class="account-label">张三<small>当前账户</small></span><ChevronDown :size="14" /></button><template v-if="accountMenuOpen"><button class="account-menu-backdrop" aria-label="关闭头像菜单" @click="accountMenuOpen = false" /><div id="account-menu" class="account-menu"><RouterLink to="/audit-logs" @click="accountMenuOpen = false"><ClipboardList :size="16" />审计日志</RouterLink><button @click="logout"><LogOut :size="16" />退出登录</button></div></template></div></template></div>
       </header>
 
       <main>
@@ -113,11 +113,11 @@ watch(() => route.path, path => {
         <ModelsView v-else-if="route.path === '/models' || route.path.startsWith('/models/')" :is-sub="isSub" :guest="!authenticated" />
         <AlertView v-else-if="route.path === '/alerts' || route.path.startsWith('/alerts/')" />
         <AuditView v-else-if="route.path === '/audit-logs'" />
-        <AnnouncementsView v-else-if="route.path === '/help/announcements' || route.path.startsWith('/help/announcements/')" :is-sub="isSub" />
+        <AnnouncementsView v-else-if="route.path === '/announcements' || route.path.startsWith('/announcements/')" />
         <DocsView v-else-if="route.path === '/docs' || route.path.startsWith('/docs/')" />
         <TicketsView v-else-if="route.path === '/help/tickets' || route.path.startsWith('/help/tickets/')" :is-sub="isSub" />
         <div v-else class="page-heading"><div><h1>{{ current.title }}</h1><p>{{ current.description }}</p></div><RouterLink class="docs-link" to="/docs"><BookOpen :size="16" />接入文档<ArrowUpRight :size="15" /></RouterLink></div>
-        <section v-if="!['/home', '/pricing', '/overview', '/usage', '/audit-logs'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/help/announcements') && !route.path.startsWith('/docs') && !route.path.startsWith('/help/tickets')" class="page-panel" :aria-label="pageLabel">
+        <section v-if="!['/home', '/pricing', '/overview', '/usage', '/audit-logs'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/announcements') && !route.path.startsWith('/docs') && !route.path.startsWith('/help/tickets')" class="page-panel" :aria-label="pageLabel">
           <div class="panel-header"><span>{{ current.title }}</span><span class="placeholder-badge">页面预留</span></div>
           <p v-if="route.path === '/services' && route.query.section === 'keys'" class="docs-demo-note">已定位到“我的服务”的密钥管理入口。当前服务页面仍为演示预留，尚未接入实际创建密钥功能。</p>
           <div class="empty-canvas">
