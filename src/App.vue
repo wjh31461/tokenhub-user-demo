@@ -16,6 +16,7 @@ import './components/overview.css'
 import './components/announcements.css'
 import './components/tickets.css'
 import './components/login.css'
+import './components/account-menu.css'
 import { useRoute, useRouter } from 'vue-router'
 import { Layers3, LayoutDashboard, Package, KeyRound, ChartNoAxesCombined, Boxes, UsersRound, Bell, ClipboardList, CircleHelp, BookOpen, Megaphone, MessagesSquare, ChevronDown, ChevronRight, ChevronsLeft, Menu, ArrowUpRight, PanelTop, LogOut, BadgeDollarSign, House } from 'lucide-vue-next'
 const route = useRoute()
@@ -25,6 +26,7 @@ const isSub = ref(false)
 const mobileOpen = ref(false)
 const compact = ref(false)
 const helpOpen = ref(true)
+const accountMenuOpen = ref(false)
 const mainItems = [
   { path: '/overview', title: '概览', icon: LayoutDashboard, description: '在这里了解账户、服务与近期用量。' },
   { path: '/services', title: '我的服务', icon: Package, description: '查看已订购的服务、可用额度与套餐信息。' },
@@ -33,7 +35,7 @@ const mainItems = [
   { path: '/models', title: '模型目录', icon: Boxes, description: '探索平台提供的模型能力与接入信息。' },
   { path: '/subaccounts', title: '子账户管理', icon: UsersRound, description: '管理子账户及其可使用的服务额度。' },
   { path: '/alerts', title: '告警管理', icon: Bell, description: '查看余额、Token 包余量与异常请求告警。' },
-  { path: '/audit-logs', title: '操作审计', icon: ClipboardList, description: '查阅账户下的关键操作记录。' }
+  { path: '/audit-logs', title: '审计日志', icon: ClipboardList, description: '查看当前账户的关键操作记录。' }
 ]
 const homeItem = { path: '/home', title: '首页', icon: House, description: '了解 TokenHub 平台与模型接入。' }
 const pricingItem = { path: '/pricing', title: '定价', icon: BadgeDollarSign, description: '了解模型价格与计费方式。' }
@@ -50,6 +52,7 @@ const current = computed(() => [homeItem, ...mainItems, pricingItem, ...helpItem
 const helpActive = computed(() => route.path.startsWith('/help'))
 const pageLabel = computed(() => current.value.title)
 function logout() {
+  accountMenuOpen.value = false
   sessionStorage.removeItem('tokenhub-demo-session')
   authenticated.value = false
   router.replace('/home')
@@ -57,6 +60,7 @@ function logout() {
 watch(() => route.path, path => {
   authenticated.value = sessionStorage.getItem('tokenhub-demo-session') !== null
   mobileOpen.value = false
+  accountMenuOpen.value = false
   if (path.startsWith('/help')) helpOpen.value = true
   if (isSub.value && path === '/subaccounts') router.replace('/overview')
 })
@@ -78,7 +82,7 @@ watch(() => route.path, path => {
         <span class="brand-text">Token<span>Hub</span><small>用户门户</small></span>
       </RouterLink>
       <nav aria-label="主导航">
-        <RouterLink v-for="item in visibleItems.filter(item => !accountPaths.includes(item.path))" :key="item.path" :to="item.path" class="nav-link" :title="item.title" :class="{ selected: (route.path === item.path || route.path.startsWith(item.path + '/')) }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined">
+        <RouterLink v-for="item in visibleItems.filter(item => !accountPaths.includes(item.path) && item.path !== '/audit-logs')" :key="item.path" :to="item.path" class="nav-link" :title="item.title" :class="{ selected: (route.path === item.path || route.path.startsWith(item.path + '/')) }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined">
           <component :is="item.icon" :size="19" :stroke-width="1.7" /><span>{{ item.title }}</span><span v-if="item.path === '/subaccounts'" class="owner-tag">主账户</span>
         </RouterLink>
         <div v-if="!compact" class="nav-caption">账户管理</div>
@@ -97,7 +101,7 @@ watch(() => route.path, path => {
     <div class="workspace">
       <header class="topbar">
         <div class="breadcrumb"><button class="icon-button mobile-menu" aria-label="打开菜单" @click="mobileOpen = true"><Menu :size="21" /></button><span>用户门户</span><ChevronRight :size="14" /><span v-if="helpActive">帮助与支持</span><ChevronRight v-if="helpActive" :size="14" /><strong>{{ current.title }}</strong></div>
-        <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-control account-fixed"><span class="avatar">主</span><span class="account-label">主账户<small>主账户管理员</small></span></div><button class="logout-button" aria-label="退出登录" title="退出登录" @click="logout"><LogOut :size="17" /><span>退出</span></button></template></div>
+        <div class="top-actions"><RouterLink v-if="!authenticated" class="public-login" to="/login">登录</RouterLink><template v-else><RouterLink v-if="route.meta.public" class="docs-link" to="/overview">进入控制台</RouterLink><span class="demo-badge">DEMO</span><span class="top-divider" /><div class="account-menu-control" @keydown.esc="accountMenuOpen = false"><button class="account-control account-fixed" aria-label="我的头像" :aria-expanded="accountMenuOpen" aria-controls="account-menu" @click="accountMenuOpen = !accountMenuOpen"><span class="avatar">张</span><span class="account-label">张三<small>当前账户</small></span><ChevronDown :size="14" /></button><template v-if="accountMenuOpen"><button class="account-menu-backdrop" aria-label="关闭头像菜单" @click="accountMenuOpen = false" /><div id="account-menu" class="account-menu"><RouterLink to="/audit-logs" @click="accountMenuOpen = false"><ClipboardList :size="16" />审计日志</RouterLink><button @click="logout"><LogOut :size="16" />退出登录</button></div></template></div></template></div>
       </header>
 
       <main>
@@ -107,7 +111,7 @@ watch(() => route.path, path => {
         <UsageView v-else-if="route.path === '/usage'" :is-sub="isSub" />
         <ModelsView v-else-if="route.path === '/models' || route.path.startsWith('/models/')" :is-sub="isSub" :guest="!authenticated" />
         <AlertView v-else-if="route.path === '/alerts' || route.path.startsWith('/alerts/')" />
-        <AuditView v-else-if="route.path === '/audit-logs'" :is-sub="isSub" />
+        <AuditView v-else-if="route.path === '/audit-logs'" />
         <AnnouncementsView v-else-if="route.path === '/help/announcements' || route.path.startsWith('/help/announcements/')" :is-sub="isSub" />
         <DocsView v-else-if="route.path === '/help/docs' || route.path.startsWith('/help/docs/')" :is-sub="isSub" :guest="!authenticated" />
         <TicketsView v-else-if="route.path === '/help/tickets' || route.path.startsWith('/help/tickets/')" :is-sub="isSub" />
