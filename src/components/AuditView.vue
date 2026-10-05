@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { RefreshCw, Download, Search, RotateCcw, ChevronLeft, ChevronRight, X, ClipboardList, Info } from 'lucide-vue-next'
 import { auditRecords, detailText, operationLabels, resultLabels, targetLabels, valueLabel, type AuditRecord } from '../data/audit'
 import { createAuditWorkbook } from '../utils/auditExport'
+import { profileState, readProfileAudit } from '../data/profile'
 import './audit.css'
 const route = useRoute(), router = useRouter()
 // The demo uses the document's reference date so its fictional history stays reproducible.
@@ -21,6 +22,7 @@ const dialog = ref<HTMLElement>(), closeButton = ref<HTMLButtonElement>()
 let returnFocus: HTMLElement | null = null
 let timer: ReturnType<typeof setTimeout> | undefined, exportTimer: ReturnType<typeof setTimeout> | undefined
 let activeExport = 0
+let loadGeneration = 0
 const dirty = computed(() => JSON.stringify(draft.value) !== JSON.stringify(applied.value))
 const pageRows = computed(() => snapshotRows.value.slice((page.value - 1) * pageSize.value, page.value * pageSize.value))
 const pages = computed(() => Math.max(1, Math.ceil(snapshotRows.value.length / pageSize.value)))
@@ -40,8 +42,13 @@ function validate() {
 }
 function load(retry = false) {
   clearTimeout(timer); loading.value = true; error.value = false
-  const filters = { ...applied.value }, asOf = new Date().toISOString(), mode = scenario.value
-  timer = setTimeout(() => {
+  const filters = { ...applied.value }, asOf = new Date().toISOString(), mode = scenario.value, request = ++loadGeneration
+  timer = setTimeout(async () => {
+    try {
+      const saved = await readProfileAudit()
+      if (request !== loadGeneration) return
+      records.value = [...new Map([...records.value, ...saved].map(record => [record.id, record])).values()]
+    } catch { if (request === loadGeneration) { loading.value = false; error.value = true; snapshotRows.value = [] }; return }
     loading.value = false
     if (mode === 'error' && !retry) { error.value = true; snapshotRows.value = []; return }
     queryAsOf.value = asOf
@@ -74,7 +81,7 @@ function exportLogs() {
       exportMessage.value = expired ? '文件已过期，请重新导出' : `${fileName.value} 已生成，共 ${matched.length} 条记录`
       // Demo-only suggested export event, added after generation and not included in this file.
       const now = new Date().toISOString()
-      records.value.unshift({ id: `audit-export-${task}-${Date.now()}`, occurredAt: now, actorName: '张三', actorId: 'user-demo-001', targetType: 'AUDIT_LOG', targetName: `${filters.start} 至 ${filters.end}`, targetId: null, operationType: 'EXPORT', result: 'SUCCESS', summary: '操作审计文件生成完成。', resultMessage: `范围：${filters.start} 至 ${filters.end}；操作类型：${filters.operationType ? operationLabels[filters.operationType as keyof typeof operationLabels] : '全部'}；${matched.length} 条记录。`, changes: [] })
+      records.value.unshift({ id: `audit-export-${task}-${Date.now()}`, occurredAt: now, actorName: profileState.value?.nickname || '张三', actorId: 'user-demo-001', targetType: 'AUDIT_LOG', targetName: `${filters.start} 至 ${filters.end}`, targetId: null, operationType: 'EXPORT', result: 'SUCCESS', summary: '操作审计文件生成完成。', resultMessage: `范围：${filters.start} 至 ${filters.end}；操作类型：${filters.operationType ? operationLabels[filters.operationType as keyof typeof operationLabels] : '全部'}；${matched.length} 条记录。`, changes: [] })
     } catch { clearFile(); exportState.value = 'failed'; exportMessage.value = '导出生成失败，请重试' }
   }, 600)
 }
@@ -90,7 +97,7 @@ function trap(event: KeyboardEvent) {
 watch(logId, async id => { document.body.style.overflow = id ? 'hidden' : ''; await nextTick(); if (id) closeButton.value?.focus(); else returnFocus?.focus({ preventScroll: true }) }, { immediate: true })
 watch(scenario, () => { page.value = 1; exportMessage.value = ''; exportState.value = 'idle'; activeExport++; clearTimeout(exportTimer); clearFile(); load() })
 onMounted(() => load())
-onBeforeUnmount(() => { activeExport++; clearTimeout(timer); clearTimeout(exportTimer); clearFile(); snapshotRows.value = []; document.body.style.overflow = '' })
+onBeforeUnmount(() => { loadGeneration++; activeExport++; clearTimeout(timer); clearTimeout(exportTimer); clearFile(); snapshotRows.value = []; document.body.style.overflow = '' })
 </script>
 
 <template>

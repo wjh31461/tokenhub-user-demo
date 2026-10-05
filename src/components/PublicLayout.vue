@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router'
 import { ArrowRight, Layers3 } from 'lucide-vue-next'
 const route = useRoute()
-const items = [{ path: '/home', title: '首页' }, { path: '/models', title: '模型目录' }, { path: '/pricing', title: '定价' }]
+const items = [{ path: '/home', title: '首页' }, { path: '/models', title: '模型目录' }]
 const active = (path: string) => route.path === path || route.path.startsWith(path + '/')
 </script>
 

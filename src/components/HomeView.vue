@@ -26,7 +26,7 @@ const features = [
       </section>
       <section class="home-features" aria-label="平台能力"><article v-for="feature in features" :key="feature.title"><span><component :is="feature.icon" :size="21" /></span><h2>{{ feature.title }}</h2><p>{{ feature.text }}</p></article></section>
       <section class="home-model-section"><div class="home-section-heading"><div><span class="home-section-label">MODEL CATALOG</span><h2>为不同场景，选择合适的模型</h2><p>先了解能力与价格，再决定如何接入。</p></div><RouterLink to="/models">查看全部模型<ArrowRight :size="16" /></RouterLink></div><div class="home-featured-models"><RouterLink v-for="model in featured" :key="model.id" :to="`/models/${model.id}`"><div><span class="home-model-type">{{ modelTypeLabels[model.type] }}</span><ArrowRight :size="17" /></div><h3>{{ model.name }}</h3><p>{{ model.summary }}</p><div class="home-model-bottom"><span>{{ model.tags.slice(0, 2).join(' · ') }}</span><strong>{{ model.priceSummary }}</strong></div></RouterLink></div><p class="home-price-note">页面价格为演示数据，实际价格以开通服务约定为准。</p></section>
-      <section class="home-start"><div><span class="home-section-label">GET STARTED</span><h2>从这里开始您的第一次调用</h2><p>查看接入指南，准备服务与 API 密钥，按示例发起请求。</p></div><div><RouterLink class="home-primary" to="/help/docs">阅读快速开始<ArrowRight :size="17" /></RouterLink><RouterLink class="home-secondary" to="/pricing">了解定价</RouterLink></div></section>
+      <section class="home-start"><div><span class="home-section-label">GET STARTED</span><h2>从这里开始您的第一次调用</h2><p>查看接入指南，准备服务与 API 密钥，按示例发起请求。</p></div><div><RouterLink class="home-primary" to="/help/docs">阅读快速开始<ArrowRight :size="17" /></RouterLink></div></section>
     </div>
 
   </div>
