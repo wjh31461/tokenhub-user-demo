@@ -10,6 +10,7 @@ import {
   ticketCategoryNames, ticketImpactNames, ticketRecords, ticketStatusNames,
   type TicketAttachment, type TicketCategory, type TicketImpact, type TicketRecord, type TicketStatus,
 } from '../data/tickets'
+import { publishedDocs } from '../data/docs'
 
 const props = defineProps<{ isSub: boolean }>()
 const route = useRoute()
@@ -78,7 +79,8 @@ const source = computed(() => {
   const id = typeof route.query.sourceId === 'string' ? route.query.sourceId : legacyAlert
   if (!type || !id) return null
   const names: Record<string, string> = { ALERT: '告警', CALL: '调用记录', DOC: '接入文档', SERVICE: '服务', TICKET: '原工单' }
-  return { type, id, name: names[type] ?? '关联信息' }
+  const article = type === 'DOC' ? publishedDocs.find(article => article.slug === id) : undefined
+  return { type, id, name: article?.title ?? names[type] ?? '关联信息', docUrl: article ? `${window.location.origin}/#/docs/articles/${article.slug}` : '' }
 })
 
 function showLoading() {
@@ -152,6 +154,7 @@ function applySource() {
   } else if (source.value.type === 'DOC') {
     form.value.category = 'DOCUMENTATION'
     form.value.title = '接入文档内容需要确认'
+    if (source.value.docUrl) form.value.description = `文档：${source.value.name}\n链接：${source.value.docUrl}\n\n请在此补充您遇到的问题。请勿提交完整密钥或敏感请求正文。`
   } else if (source.value.type === 'SERVICE') {
     form.value.category = 'SERVICE_ORDER'
     form.value.service = 'token-pro'

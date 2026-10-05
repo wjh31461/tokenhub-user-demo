@@ -10,6 +10,7 @@ import {
   type CatalogModel, type ModelType,
 } from '../data/models'
 import './models.css'
+import { modelDocEntry } from '../data/docs'
 
 defineProps<{ isSub: boolean; guest?: boolean }>()
 const route = useRoute()
@@ -158,7 +159,7 @@ initializeFromRoute()
         <section class="model-detail-section"><header><span>二</span><h2>模型性能信息</h2></header><div class="performance-grid"><article><span>上下文长度</span><strong>{{ selected.context || '暂未提供' }}</strong></article><article><span>最大输出长度</span><strong>{{ selected.maxOutput || '暂未提供' }}</strong></article><article><span>知识截止时间</span><strong>{{ selected.knowledgeCutoff || '暂未提供' }}</strong></article></div></section>
         <section class="model-detail-section"><header><span>三</span><h2>支持的能力</h2></header><div v-if="selected.capabilities.length" class="detail-capabilities"><span v-for="capability in selected.capabilities" :key="capability"><Check :size="14" />{{ capabilityLabels[capability] }}</span></div><p v-else class="missing-copy">暂未提供</p><p class="model-section-note"><Info :size="13" />具体请求参数请以接入文档为准。</p></section>
         <section class="model-detail-section"><header><span>四</span><h2>价格信息</h2><small>生效时间：{{ selected.effectiveAt }}</small></header><dl class="pricing-mode"><div><dt>计价方式</dt><dd>{{ selected.pricingType === 'UNIT_PRICE' ? '直接单价' : '定价倍率' }}</dd></div><div><dt>提供商</dt><dd>{{ selected.manufacturer }}</dd></div><div v-if="selected.pricingType === 'MULTIPLIER'"><dt>倍率基准</dt><dd>{{ selected.multiplierBase }}</dd></div></dl><div class="pricing-grid"><article v-for="item in selected.prices" :key="item.name"><span>{{ item.name }}</span><strong>{{ item.amount }}</strong><small v-if="item.unit">{{ item.unit }}</small></article></div><p class="model-section-note"><Info :size="13" />页面展示的是用户价格，实际费用以用量中心和计费记录为准。</p></section>
-        <section class="model-detail-section"><header><span>五</span><h2>接口信息</h2><RouterLink class="models-primary" :to="{ path: '/help/docs', query: { model: selected.code } }"><BookOpen :size="15" />查看接入文档</RouterLink></header><div class="protocol-list"><article v-for="protocol in selected.protocols" :key="protocol"><span><FileCode2 :size="16" /></span><div><strong>{{ protocolLabels[protocol] }}</strong><small>调用时 model 填写 {{ selected.code }}</small></div></article></div></section>
+        <section class="model-detail-section"><header><span>五</span><h2>接口信息</h2><RouterLink class="models-primary" :to="modelDocEntry(selected.id)"><BookOpen :size="15" />查看接入文档</RouterLink></header><div class="protocol-list"><article v-for="protocol in selected.protocols" :key="protocol"><span><FileCode2 :size="16" /></span><div><strong>{{ protocolLabels[protocol] }}</strong><small>调用时 model 填写 {{ selected.code }}</small></div></article></div></section>
       </div>
       <div v-if="copied" class="copy-toast" :class="{ error: copied === 'error' }" role="status">{{ copied === 'success' ? '模型标识已复制' : '复制失败，请手动复制模型标识' }}</div>
     </template>

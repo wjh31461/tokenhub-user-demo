@@ -14,7 +14,7 @@ const features = [
   <div class="home-page">
     <div class="home-content">
       <section class="home-hero">
-        <div class="home-hero-copy"><span class="home-eyebrow"><span />多模型统一接入平台</span><h1>连接模型能力，<br /><em>让 AI 应用更快落地。</em></h1><p>从模型选择到应用接入，TokenHub 为您提供统一的调用入口、清晰的模型定价与完整的接入指南。</p><div class="home-hero-actions"><RouterLink class="home-primary" to="/models">探索模型目录<ArrowRight :size="17" /></RouterLink><RouterLink class="home-secondary" to="/help/docs"><BookOpen :size="17" />查看接入文档</RouterLink></div><div class="home-hero-note"><span>兼容主流 API 协议</span><i /><span>公开目录与文档，无需登录</span></div></div>
+        <div class="home-hero-copy"><span class="home-eyebrow"><span />多模型统一接入平台</span><h1>连接模型能力，<br /><em>让 AI 应用更快落地。</em></h1><p>从模型选择到应用接入，TokenHub 为您提供统一的调用入口、清晰的模型定价与完整的接入指南。</p><div class="home-hero-actions"><RouterLink class="home-primary" to="/models">探索模型目录<ArrowRight :size="17" /></RouterLink><RouterLink class="home-secondary" to="/docs"><BookOpen :size="17" />查看接入文档</RouterLink></div><div class="home-hero-note"><span>兼容主流 API 协议</span><i /><span>模型目录公开浏览，文档登录后阅读</span></div></div>
         <div class="home-visual" aria-label="通过 TokenHub 统一接入对话、多模态和向量模型">
           <div class="home-visual-label"><Sparkles :size="15" /> 一个入口，多种可能</div>
           <div class="home-app-node"><Braces :size="20" /><span>您的 AI 应用</span></div><div class="home-connect-line" />

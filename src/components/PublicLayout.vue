@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router'
 import { ArrowRight, Layers3 } from 'lucide-vue-next'
 const route = useRoute()
-const items = [{ path: '/home', title: '首页' }, { path: '/models', title: '模型目录' }, { path: '/pricing', title: '定价' }, { path: '/help/docs', title: '接入文档' }]
+const items = [{ path: '/home', title: '首页' }, { path: '/models', title: '模型目录' }, { path: '/pricing', title: '定价' }]
 const active = (path: string) => route.path === path || route.path.startsWith(path + '/')
 </script>
 
@@ -14,7 +14,7 @@ const active = (path: string) => route.path === path || route.path.startsWith(pa
       <RouterLink class="public-signin" to="/login">登录<ArrowRight :size="15" /></RouterLink>
     </div></header>
     <main class="public-content" :class="{ 'public-home': route.path === '/home' }"><slot /></main>
-    <footer class="public-footer"><span>TokenHub · 多模型统一接入平台</span><nav aria-label="页脚导航"><RouterLink v-for="item in items.slice(1)" :key="item.path" :to="item.path">{{ item.title }}</RouterLink></nav></footer>
+    <footer class="public-footer"><span>TokenHub · 多模型统一接入平台</span><nav aria-label="页脚导航"><RouterLink v-for="item in items.slice(1)" :key="item.path" :to="item.path">{{ item.title }}</RouterLink><RouterLink to="/docs">接入文档</RouterLink></nav></footer>
   </div>
 </template>
 

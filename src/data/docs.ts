@@ -1,202 +1,81 @@
-export type DocKind = 'QUICKSTART' | 'GUIDE' | 'API_REFERENCE' | 'INTEGRATION' | 'FAQ'
-
-export interface CodeExample {
-  language: 'cURL' | 'Python' | 'JavaScript' | 'Shell'
-  code: string
-}
-
+import { catalogModels } from './models'
+export type DocKind = 'QUICKSTART' | 'GUIDE' | 'API_REFERENCE' | 'INTEGRATION'
+export interface CodeExample { language: 'JSON' | 'Text'; code: string }
 export interface DocSection {
-  id: string
-  title: string
-  paragraphs?: string[]
-  bullets?: string[]
-  steps?: string[]
+  id: string; title: string; paragraphs?: string[]; bullets?: string[]; steps?: string[]
   note?: { tone: 'info' | 'warning'; title: string; text: string }
-  examples?: CodeExample[]
-  table?: { headers: string[]; rows: string[][] }
+  examples?: CodeExample[]; table?: { headers: string[]; rows: string[][] }
+  links?: { label: string; path: string }[]
 }
-
 export interface DocArticle {
-  slug: string
-  category: string
-  title: string
-  summary: string
-  kind: DocKind
-  updatedAt: string
-  readMinutes: number
-  tags: string[]
-  protocols?: string[]
-  sections: DocSection[]
+  slug: string; category: string; title: string; summary: string; kind: DocKind
+  status: 'DRAFT' | 'PUBLISHED' | 'OFFLINE'; updatedAt: string; tags: string[]; sections: DocSection[]
 }
-
 export const docsCategories = [
-  { key: 'quickstart', title: '快速开始', description: '从准备到完成首次调用' },
-  { key: 'guides', title: '基础指南', description: '鉴权、流式响应与调用规则' },
-  { key: 'api', title: 'API 参考', description: '公开端点、参数和返回格式' },
-  { key: 'agents', title: 'Agent 与工具接入', description: '接入已验证的开发工具' },
-  { key: 'faq', title: '常见问题', description: '定位常见调用失败' },
-] as const
-
-const quickstartExamples: CodeExample[] = [
-  {
-    language: 'cURL',
-    code: `curl "{TOKENHUB_BASE_URL}/v1/chat/completions" \\
-  -H "Authorization: Bearer $TOKENHUB_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "your-model-code",
-    "messages": [{ "role": "user", "content": "你好" }]
-  }'`,
-  },
-  {
-    language: 'Python',
-    code: `import os
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=os.environ["TOKENHUB_API_KEY"],
-    base_url="{TOKENHUB_BASE_URL}/v1",
-)
-
-response = client.chat.completions.create(
-    model="your-model-code",
-    messages=[{"role": "user", "content": "你好"}],
-)
-print(response.choices[0].message.content)`,
-  },
-  {
-    language: 'JavaScript',
-    code: `import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.TOKENHUB_API_KEY,
-  baseURL: "{TOKENHUB_BASE_URL}/v1",
-});
-
-const response = await client.chat.completions.create({
-  model: "your-model-code",
-  messages: [{ role: "user", content: "你好" }],
-});`,
-  },
+  { key: 'general', title: '通用文档', type: 'GENERAL', description: 'API 访问方式、流控要求、错误码与 Agent 接入' },
+  { key: 'text', title: '文生文', type: 'CAPABILITY', capability: 'TEXT_GENERATION', description: '文本生成能力的接口说明' },
+  { key: 'image', title: '文生图', type: 'CAPABILITY', capability: 'IMAGE_GENERATION', description: '图像生成能力的接口说明' },
+  { key: 'video', title: '文生视频', type: 'CAPABILITY', capability: 'VIDEO_GENERATION', description: '暂未发布接口文档' },
 ]
-
-export const docArticles: DocArticle[] = [
-  {
-    slug: 'quickstart/overview', category: 'quickstart', title: 'TokenHub 接入概览', kind: 'QUICKSTART',
-    summary: '了解从开通服务、创建密钥到完成模型调用的完整接入路径。', updatedAt: '2026-09-29', readMinutes: 4,
-    tags: ['接入', '快速开始', 'API 密钥'],
-    sections: [
-      { id: 'workflow', title: '接入流程', steps: ['确认当前账户已开通可用的 Token 服务。', '在 API 密钥页面创建用户密钥，并妥善保存。', '从模型目录选择当前账户可使用的模型，复制公开 model 标识。', '按照对应协议配置 Base URL 和鉴权请求头。', '发起首次请求，并在用量中心核对调用记录。'] },
-      { id: 'prerequisites', title: '接入前准备', bullets: ['一个状态正常的主账户或子账户身份', '至少一项可用的 Token 服务或已分配配额', '一个由当前身份创建的用户 API 密钥', '一个当前服务允许使用的平台模型'] },
-      { id: 'boundaries', title: '需要注意', note: { tone: 'info', title: '密钥和额度是两个概念', text: 'API 密钥是调用凭证，额度属于关联服务。创建多个密钥不会增加可用额度。AI 应用的业务密钥由开通流程管理。' } },
-    ],
-  },
-  {
-    slug: 'quickstart/first-request', category: 'quickstart', title: '发起第一个请求', kind: 'QUICKSTART',
-    summary: '使用安全占位变量发起一条最小文生文请求。', updatedAt: '2026-09-29', readMinutes: 6,
-    tags: ['首次调用', 'cURL', 'Python', 'JavaScript'], protocols: ['OpenAI 兼容'],
-    sections: [
-      { id: 'before-start', title: '开始之前', paragraphs: ['准备用户 API 密钥和模型目录中的公开 model 标识。示例使用受控占位地址，正式环境以平台公布的 Base URL 为准。'], note: { tone: 'warning', title: '不要粘贴真实密钥', text: '示例从环境变量 TOKENHUB_API_KEY 读取凭证。不要将密钥写入前端代码、公开仓库、URL 或日志。' } },
-      { id: 'send-request', title: '发送请求', paragraphs: ['选择熟悉的语言，复制后替换示例模型标识，并在本地安全地配置环境变量。'], examples: quickstartExamples },
-      { id: 'verify-result', title: '验证结果', bullets: ['HTTP 状态为 200，并返回模型结果。', '响应包含公开请求标识，可用于排障。', '用量中心出现对应调用记录；计量可能存在短暂延迟。'] },
-    ],
-  },
-  {
-    slug: 'guides/base-url', category: 'guides', title: 'Base URL 与接口版本', kind: 'GUIDE',
-    summary: '区分 Base URL、公开端点、协议和模型标识。', updatedAt: '2026-09-29', readMinutes: 5,
-    tags: ['Base URL', '版本', '端点'],
-    sections: [
-      { id: 'concepts', title: '四个容易混淆的概念', table: { headers: ['概念', '作用', '示例'], rows: [['Base URL', '平台公开 API 的基础地址', '{TOKENHUB_BASE_URL}'], ['路径', '某项能力的公开接口', '/v1/chat/completions'], ['协议', '请求与响应兼容格式', 'OpenAI 兼容'], ['model 标识', '请求中选择平台模型', 'your-model-code']] } },
-      { id: 'environment', title: '环境与版本', paragraphs: ['正式 Base URL 和 API 版本由开放接口管理统一发布。文档示例不会使用供应商地址，也不会要求用户感知实际路由渠道。'] },
-      { id: 'compatibility', title: '兼容性边界', note: { tone: 'info', title: '兼容不等于完全相同', text: '平台只对文档明确列出的协议、字段和行为作出兼容承诺。第三方 SDK 的额外功能需要单独验证。' } },
-    ],
-  },
-  {
-    slug: 'guides/authentication', category: 'guides', title: '鉴权方式', kind: 'GUIDE',
-    summary: '使用用户 API 密钥安全访问 TokenHub 的公开接口。', updatedAt: '2026-09-29', readMinutes: 7,
-    tags: ['鉴权', 'API 密钥', '401', '403'],
-    sections: [
-      { id: 'user-key', title: '用户密钥', paragraphs: ['Token 服务用户可以在 API 密钥页面创建、暂停、恢复和删除自己的密钥。业务产品密钥由 CRM 开通流程管理。'] },
-      { id: 'request-header', title: '请求头', paragraphs: ['不同兼容协议可能使用不同鉴权头，最终以对应 API 参考为准。'], examples: [{ language: 'cURL', code: 'Authorization: Bearer $TOKENHUB_API_KEY\nContent-Type: application/json' }] },
-      { id: 'security', title: '安全建议', bullets: ['只在服务端或受控开发环境使用密钥。', '为不同应用创建不同密钥，便于暂停和排查。', '怀疑泄露时立即暂停或删除密钥并重新创建。', '不要通过聊天、工单正文或截图提交完整密钥。'] },
-      { id: 'errors', title: '常见鉴权错误', table: { headers: ['状态', '可能原因', '建议'], rows: [['401', '缺少、格式错误或无效密钥', '检查请求头并确认密钥有效'], ['403', '账户、服务或密钥被限制', '查看服务和账户状态'], ['429', '达到请求频率或并发限制', '按退避建议稍后重试']] } },
-    ],
-  },
-  {
-    slug: 'guides/streaming', category: 'guides', title: '流式响应', kind: 'GUIDE',
-    summary: '逐步接收模型输出并正确处理结束与异常。', updatedAt: '2026-09-29', readMinutes: 8,
-    tags: ['流式', 'stream', 'SSE'],
-    sections: [
-      { id: 'enable', title: '启用流式输出', paragraphs: ['在支持的端点中按文档设置 stream 参数。客户端应逐条处理事件。'], examples: [{ language: 'cURL', code: '{\n  "model": "your-model-code",\n  "stream": true,\n  "messages": [{ "role": "user", "content": "请生成一段介绍" }]\n}' }] },
-      { id: 'lifecycle', title: '响应生命周期', steps: ['建立连接并校验响应状态。', '逐条读取事件并拼接公开内容字段。', '识别正常结束标识。', '记录公开 requestId，必要时用于排查。', '按接口约定读取 usage。'] },
-      { id: 'disconnect', title: '客户端断开', note: { tone: 'warning', title: '断开不一定代表不计量', text: '客户端主动断开后，平台可能继续读取上游结果完成计量。最终用量以平台记录为准。' } },
-    ],
-  },
-  {
-    slug: 'guides/rate-limits', category: 'guides', title: '流控与请求限制', kind: 'GUIDE',
-    summary: '了解请求频率、并发、请求体和模型限制。', updatedAt: '2026-09-29', readMinutes: 6,
-    tags: ['流控', '429', '限制'],
-    sections: [
-      { id: 'dimensions', title: '限制维度', table: { headers: ['维度', '说明'], rows: [['请求频率', '单位时间允许发起的请求数量'], ['并发数', '同一时刻正在处理的请求数量'], ['请求体大小', '请求内容和附件允许的最大体积'], ['模型限制', '上下文、图片数量或生成参数限制']] } },
-      { id: 'when-limited', title: '遇到 429', bullets: ['停止立即重复请求。', '读取公开错误码和重试提示。', '使用指数退避并加入少量随机抖动。', '持续出现时检查应用并发设置和服务限制。'] },
-      { id: 'values', title: '当前限制', note: { tone: 'info', title: '数值由服务端配置', text: '不同账户、服务和模型可能具有不同限制。Demo 不展示未经确认的生产数值。' } },
-    ],
-  },
-  {
-    slug: 'guides/errors', category: 'guides', title: '错误码与故障排查', kind: 'GUIDE',
-    summary: '根据 HTTP 状态、平台错误码和 requestId 定位调用问题。', updatedAt: '2026-09-29', readMinutes: 9,
-    tags: ['错误码', 'requestId', '401', '429'],
-    sections: [
-      { id: 'error-shape', title: '错误响应', paragraphs: ['错误响应应包含机器可读错误码、用户消息和公开请求标识。实际字段以发布规范为准。'], examples: [{ language: 'cURL', code: '{\n  "error": {\n    "code": "RATE_LIMIT_EXCEEDED",\n    "message": "请求过于频繁，请稍后重试",\n    "request_id": "req_demo_01"\n  }\n}' }] },
-      { id: 'common-errors', title: '常见错误', table: { headers: ['HTTP', '示例错误', '重试', '处理建议'], rows: [['400', 'INVALID_REQUEST', '否', '检查参数和请求体'], ['401', 'INVALID_API_KEY', '否', '检查鉴权头和密钥'], ['403', 'SERVICE_RESTRICTED', '否', '检查账户与服务状态'], ['404', 'MODEL_NOT_FOUND', '否', '使用模型目录公开标识'], ['429', 'RATE_LIMIT_EXCEEDED', '是', '退避后重试'], ['503', 'TEMPORARILY_UNAVAILABLE', '是', '稍后重试并保留 requestId']] } },
-      { id: 'ticket', title: '提交工单前', bullets: ['记录发生时间、公开 requestId、接口路径和错误码。', '说明问题是否稳定复现以及已尝试的操作。', '不要提交完整 API 密钥、敏感 Prompt 或供应商信息。'] },
-    ],
-  },
-  {
-    slug: 'api/text-openai', category: 'api', title: '文生文 · OpenAI 兼容接口', kind: 'API_REFERENCE',
-    summary: '查看文生文请求的公开路径、核心参数和返回结构。', updatedAt: '2026-09-29', readMinutes: 12,
-    tags: ['文生文', 'OpenAI', 'messages'], protocols: ['OpenAI 兼容'],
-    sections: [
-      { id: 'endpoint', title: '接口信息', table: { headers: ['项目', '值'], rows: [['方法', 'POST'], ['公开路径', '/v1/chat/completions'], ['鉴权', '用户 API 密钥'], ['内容类型', 'application/json']] } },
-      { id: 'request', title: '请求参数', table: { headers: ['字段', '类型', '必填', '说明'], rows: [['model', 'string', '是', '平台公开 model 标识'], ['messages', 'array', '是', '对话消息列表'], ['stream', 'boolean', '否', '是否启用流式输出'], ['temperature', 'number', '否', '模型支持时生效'], ['max_tokens', 'integer', '否', '输出上限，受模型限制']] } },
-      { id: 'example', title: '请求示例', examples: quickstartExamples },
-      { id: 'response', title: '响应与计量', paragraphs: ['非流式响应一次返回结果；流式响应按事件逐步返回。usage 是否返回以实际接口配置为准，最终扣减以平台计量记录为准。'] },
-    ],
-  },
-  {
-    slug: 'api/text-anthropic', category: 'api', title: '文生文 · Anthropic 兼容接口', kind: 'API_REFERENCE',
-    summary: '查看 Anthropic 兼容消息接口和平台鉴权关系。', updatedAt: '2026-09-29', readMinutes: 11,
-    tags: ['Anthropic', 'messages', '文生文'], protocols: ['Anthropic 兼容'],
-    sections: [
-      { id: 'availability', title: '适用范围', note: { tone: 'info', title: '以已发布能力为准', text: '平台只对文档明确列出的 Anthropic 兼容字段作出承诺。底层供应商和协议转换对用户不可见。' } },
-      { id: 'endpoint', title: '接口信息', table: { headers: ['项目', '值'], rows: [['方法', 'POST'], ['公开路径', '/v1/messages'], ['Base URL', '{TOKENHUB_ANTHROPIC_BASE_URL}'], ['鉴权', '以正式鉴权说明为准']] } },
-      { id: 'parameters', title: '核心参数', bullets: ['model：平台公开模型标识。', 'messages：用户和助手消息。', 'max_tokens：允许生成的最大 Token 数。', 'stream：是否使用流式响应。'] },
-    ],
-  },
-  {
-    slug: 'agents/claude-code', category: 'agents', title: 'Claude Code 接入', kind: 'INTEGRATION',
-    summary: '通过 ANTHROPIC_BASE_URL 将 Claude Code 指向 TokenHub。', updatedAt: '2026-09-29', readMinutes: 8,
-    tags: ['Claude Code', 'ANTHROPIC_BASE_URL', 'Agent'], protocols: ['Anthropic 兼容'],
-    sections: [
-      { id: 'requirements', title: '适用前提', bullets: ['当前账户具有可用 Token 服务或子账户配额。', '已经创建用户 API 密钥。', '平台已为当前服务开放 Anthropic 兼容接口。', '使用平台已验证的 Claude Code 版本。'] },
-      { id: 'configure', title: '配置环境变量', paragraphs: ['下面是结构示例，正式地址、密钥变量和模型映射以平台验证配置为准。'], examples: [{ language: 'Shell', code: 'export ANTHROPIC_BASE_URL="{TOKENHUB_ANTHROPIC_BASE_URL}"\nexport ANTHROPIC_API_KEY="$TOKENHUB_API_KEY"\n\nclaude' }] },
-      { id: 'verify', title: '验证接入', steps: ['启动 Claude Code。', '发起一条不含敏感信息的测试请求。', '确认工具正常返回结果。', '在用量中心核对调用记录。'] },
-      { id: 'troubleshoot', title: '常见问题', table: { headers: ['现象', '检查项'], rows: [['401', '密钥变量是否正确设置'], ['403', '账户、服务和密钥状态'], ['未知模型', '模型映射是否使用平台公开标识'], ['429', '是否超过频率或并发限制'], ['额度不足', '服务余量和子账户配额']] } },
-      { id: 'security', title: '配置安全', note: { tone: 'warning', title: '避免密钥泄露', text: '不要把真实密钥写入项目文件、提交到 Git，或粘贴到工单和聊天记录。' } },
-    ],
-  },
-  {
-    slug: 'faq/authentication', category: 'faq', title: '为什么请求返回 401 或 403？', kind: 'FAQ',
-    summary: '区分密钥无效、身份无权限和服务受限。', updatedAt: '2026-09-29', readMinutes: 4,
-    tags: ['401', '403', '鉴权失败'],
-    sections: [
-      { id: 'difference', title: '先区分状态', table: { headers: ['状态', '通常含义'], rows: [['401', '未携带有效凭证，或凭证格式不正确'], ['403', '身份已识别，但账户、服务、密钥或模型权限不允许调用']] } },
-      { id: 'checklist', title: '排查顺序', steps: ['检查是否使用当前账户创建的用户密钥。', '检查请求头名称、前缀和格式。', '确认密钥未暂停或删除。', '确认账户及 Token 服务状态正常。', '确认 model 标识在当前服务范围内。'] },
-      { id: 'still-failing', title: '仍未解决', paragraphs: ['保留发生时间、接口路径、平台错误码和公开 requestId 后提交工单。不要提交完整密钥。'] },
-    ],
-  },
+const placeholder = { tone: 'warning' as const, title: '演示占位，不能用于实际调用', text: '公开地址、请求方法、鉴权、参数、响应及限制尚待接口团队提供并验证。本页仅演示文档版式，不表示真实接口已经发布。' }
+const articles: Omit<DocArticle, 'status' | 'updatedAt'>[] = [
+  { slug: 'quickstart', category: 'general', title: '快速开始', summary: '准备服务、创建密钥、调用模型、查看用量。', kind: 'QUICKSTART', tags: ['接入', '首次调用'], sections: [
+    { id: 'prepare-service', title: '准备服务', paragraphs: ['确认当前账户已开通所需服务，服务状态及可用额度满足调用条件。多个密钥不会增加服务额度。'], links: [{ label: '我的服务', path: '/services' }] },
+    { id: 'create-key', title: '创建密钥', paragraphs: ['从“我的服务”的密钥管理位置创建用户自定义密钥。密钥仅在创建成功时展示一次，请妥善保存；业务密钥由 CRM 管理，在门户只读。'], links: [{ label: '前往服务密钥管理', path: '/services?section=keys&action=create' }] },
+    { id: 'call-model', title: '调用模型', steps: ['在模型目录确认模型能力和可用状态。', '进入该模型关联的接口说明，核对实际发布的地址和参数。', '在服务端或受控环境安全配置密钥，按已验证示例发起请求。'], note: placeholder, links: [{ label: '模型目录', path: '/models' }] },
+    { id: 'view-usage', title: '查看用量', paragraphs: ['调用后前往用量中心核对结果与消耗，记录可能稍后出现。请勿把完整密钥或原始请求正文粘贴到工单。'], links: [{ label: '用量中心', path: '/usage' }] },
+  ] },
+  { slug: 'api-access', category: 'general', title: 'API 访问方式', summary: '理解调用前准备、Base URL、鉴权及模型代码。', kind: 'GUIDE', tags: ['Base URL', 'API Key', 'modelCode'], sections: [
+    { id: 'prerequisites', title: '调用前准备', bullets: ['当前账户的服务和额度可用。', '使用有效的用户自定义密钥，不在文档页读取或展示真实密钥。', '模型状态与能力符合需求。'] },
+    { id: 'endpoint', title: '公开地址与鉴权', note: placeholder, table: { headers: ['项目', '说明'], rows: [['Base URL', '由接口团队提供，不是 /docs 门户网页地址'], ['公开接口路径与请求方法', '待接口团队确认'], ['鉴权方式', '待接口团队确认；示例只使用 YOUR_API_KEY']] } },
+    { id: 'model-code', title: '如何选择模型', paragraphs: ['modelId 是平台模型编号，用于门户关联文档；modelCode 是实际请求中使用的模型代码。二者不能互相代替，调用参数名称以已发布接口规范为准。'] },
+    { id: 'example', title: '最小调用示例（待确认）', examples: [{ language: 'Text', code: '公开地址：YOUR_PUBLIC_API_URL\n请求方法：YOUR_REQUEST_METHOD\n鉴权方式：YOUR_AUTH_SCHEME\n密钥占位：YOUR_API_KEY\n模型代码：YOUR_MODEL_CODE\n请求参数：由接口团队提供\n\n这是待确认的配置清单，不是可执行请求。' }] },
+  ] },
+  { slug: 'rate-limits', category: 'general', title: '流控要求', summary: '了解频率、并发与服务限制，并正确处理限流。', kind: 'GUIDE', tags: ['流控', '429', '并发'], sections: [
+    { id: 'limits', title: '实际限制在哪里查看', table: { headers: ['限制维度', '说明', '实际数值'], rows: [['调用频率', '单位时间内可发起的请求数量', '待接口团队提供'], ['并发', '同一时刻处理的请求数量', '待接口团队提供'], ['请求大小', '内容、文件等体积限制', '待接口团队提供']] }, paragraphs: ['限制因服务或模型而异时，以对应服务说明及已发布能力接口文档为准。不在演示页承诺固定生产数值。'] },
+    { id: 'retry', title: '被限流时如何处理', bullets: ['先核对 HTTP 状态和平台错误码，不将两者混为一谈。', '停止立即重复请求，按实际接口提供的重试提示控制节奏。', '排查调用频率、并发与应用重试策略；持续出现时携带公开 requestId 反馈。'], links: [{ label: '错误码说明', path: '/docs/articles/error-codes' }] },
+  ] },
+  { slug: 'error-codes', category: 'general', title: '错误码与排查方法', summary: '区分 HTTP 状态、平台错误码和 requestId，确认原因与重试规则。', kind: 'GUIDE', tags: ['错误码', 'requestId', 'PLATFORM_ERROR_CODE', '401', '429'], sections: [
+    { id: 'concepts', title: '先区分三个概念', table: { headers: ['概念', '含义'], rows: [['HTTP 状态码', '请求的粗粒度结果，不等同于平台错误码'], ['平台错误码', '由实际网关提供的具体失败原因，待接口团队确认'], ['requestId', '用于工单排查的一次调用编号，不是 API Key']] } },
+    { id: 'error-table', title: '平台错误码表（待确认）', note: placeholder, table: { headers: ['错误码', '错误含义', '常见原因', '处理方法', '是否重试'], rows: [['PLATFORM_ERROR_CODE', '由接口团队提供', '由接口团队提供', '由接口团队提供', '以已发布规范为准']] } },
+    { id: 'feedback', title: '排查和反馈', bullets: ['保留问题时间、平台公开 requestId 及脱敏错误码。', '说明复现步骤与已尝试的处理方式。', '不要提交完整 API Key、密码、验证码或敏感请求正文。'] },
+  ] },
+  { slug: 'agent-integration', category: 'general', title: 'Agent 接入', summary: '了解工具支持范围、配置清单、验证步骤及常见问题。', kind: 'INTEGRATION', tags: ['Agent', '工具', 'Claude Code'], sections: [
+    { id: 'supported-tools', title: '支持的工具', paragraphs: ['Agent 是调用模型完成任务的工具或程序。实际支持工具、版本及兼容范围由接口团队验证后发布。Claude Code 仅是候选示例，当前不提供未经验证的配置命令。'] },
+    { id: 'configuration', title: '配置步骤（待验证）', steps: ['确认工具及其版本已被平台验证支持。', '获取已发布的公开地址、鉴权方式与模型代码。', '在工具的安全配置位置填写对应配置，密钥不写入公开仓库。'], examples: [{ language: 'Text', code: '工具及版本：待验证\n公开地址：YOUR_PUBLIC_API_URL\n密钥占位：YOUR_API_KEY\n模型代码：YOUR_MODEL_CODE\n具体配置字段：待接口团队验证后提供' }] },
+    { id: 'verify', title: '如何验证成功', steps: ['使用不含敏感内容的最小测试任务。', '按已发布规范核对结果或公开错误信息。', '前往用量中心检查相应调用记录。'], links: [{ label: '用量中心', path: '/usage' }] },
+    { id: 'troubleshoot', title: '常见问题', bullets: ['核对支持版本、公开地址与模型配置。', '检查密钥有效性、服务状态、余量与流控。', '失败时按错误码文章排查，不提交完整凭证。'], links: [{ label: '错误码说明', path: '/docs/articles/error-codes' }] },
+  ] },
 ]
-
-export const kindLabels: Record<DocKind, string> = {
-  QUICKSTART: '快速开始', GUIDE: '基础指南', API_REFERENCE: 'API 参考', INTEGRATION: '工具接入', FAQ: '常见问题',
+function capabilityArticle(slug: string, category: string, title: string, description: string): Omit<DocArticle, 'status' | 'updatedAt'> {
+  return { slug, category, title, summary: description, kind: 'API_REFERENCE', tags: [title, '请求参数', '响应结果', 'MODEL_CODE'], sections: [
+    { id: 'capability', title: '能做什么', paragraphs: [description, '适用模型以当前模型目录及经验证的模型与文章关联为准。'], note: placeholder },
+    { id: 'endpoint', title: '调用哪里', table: { headers: ['项目', '值'], rows: [['公开 URL', 'YOUR_PUBLIC_API_URL（待确认）'], ['请求方法', '待接口团队提供'], ['鉴权方式', '待接口团队提供；密钥占位 YOUR_API_KEY']] } },
+    { id: 'request-params', title: '要传什么：请求参数', table: { headers: ['参数名', '通俗说明', '数据类型', '是否必填', '示例或限制'], rows: [['待接口团队提供', '字段用途待确认', '待确认', '待确认', '默认值、可选值或长度限制待确认']] }, examples: [{ language: 'JSON', code: '{\n  "PLACEHOLDER_ONLY": "这是版式示意，不是实际请求参数",\n  "MODEL_CODE": "YOUR_MODEL_CODE",\n  "REQUEST_CONTENT": "由接口团队提供"\n}' }] },
+    { id: 'response', title: '会返回什么：响应结果', table: { headers: ['字段名', '含义', '数据类型', '示例'], rows: [['待接口团队提供', '响应含义待确认', '待确认', '待确认']] }, examples: [{ language: 'JSON', code: '{\n  "PLACEHOLDER_ONLY": "这是响应版式示意，不代表真实字段",\n  "RESULT_CONTENT": "由接口团队提供"\n}' }], paragraphs: ['是否支持流式响应、流式事件格式和结束标识，需单独验证后发布。'] },
+    { id: 'limitations', title: '有哪些限制', bullets: ['模型能力、输入输出大小及格式限制待接口团队提供。', '调用频率及并发限制以正式服务说明为准。', '用量字段的口径待接口团队提供；最终消耗以用量中心记录为准。'] },
+    { id: 'errors', title: '失败怎么处理', paragraphs: ['按已发布错误码确认原因和是否重试；必要时提供公开 requestId 反馈。'], links: [{ label: '通用错误码说明', path: '/docs/articles/error-codes' }] },
+  ] }
 }
+export const docArticles: DocArticle[] = [
+  ...articles, capabilityArticle('text-api', 'text', '文生文接口说明', '输入文字并返回生成的文字内容。'), capabilityArticle('image-api', 'image', '文生图接口说明', '输入文字描述并返回生成的图片结果。'),
+].map(article => ({ ...article, status: 'PUBLISHED', updatedAt: '2026-10-05' }))
+// Fixtures verify that unpublished content never appears in navigation, results or related articles.
+docArticles.push({ ...capabilityArticle('video-draft', 'video', '文生视频接口草稿', '未发布内容'), status: 'DRAFT', updatedAt: '2026-10-05' }, { slug: 'claude-code', category: 'general', title: 'Claude Code 旧配置', summary: '已下线', kind: 'INTEGRATION', status: 'OFFLINE', updatedAt: '2026-10-01', tags: ['旧配置'], sections: [] })
+export const kindLabels: Record<DocKind, string> = { QUICKSTART: '快速开始', GUIDE: '通用指南', API_REFERENCE: '能力接口文档', INTEGRATION: 'Agent 接入' }
+export const publishedDocs = docArticles.filter(article => article.status === 'PUBLISHED')
+export const modelDocRelations = [
+  { modelId: 'model-deepseek-v3', slug: 'text-api', anchor: 'request-params' },
+  { modelId: 'model-qwen-max', slug: 'text-api', anchor: 'request-params' },
+  { modelId: 'model-glm-4', slug: 'text-api', anchor: 'capability' },
+  { modelId: 'model-image-create', slug: 'image-api', anchor: 'request-params' },
+]
+export function modelDocEntry(modelId: string) {
+  const model = catalogModels.find(item => item.id === modelId && item.status !== 'DELISTED')
+  if (!model) return { path: '/docs', query: { notice: 'model-doc-missing' } }
+  const relation = modelDocRelations.find(item => item.modelId === modelId && publishedDocs.some(article => article.slug === item.slug))
+  if (relation) return { path: `/docs/articles/${relation.slug}`, query: { modelId }, hash: `#${relation.anchor}` }
+  const category = docsCategories.find(item => item.capability === model.type && publishedDocs.some(article => article.category === item.key))
+  return { path: '/docs', query: { ...(category ? { category: category.key } : {}), notice: 'model-doc-missing', modelId } }
+}
+export const legacyDocSlugs: Record<string, string> = { 'quickstart/overview': 'quickstart', 'quickstart/first-request': 'quickstart', 'guides/base-url': 'api-access', 'guides/authentication': 'api-access', 'guides/streaming': 'text-api', 'guides/rate-limits': 'rate-limits', 'guides/errors': 'error-codes', 'api/text-openai': 'text-api', 'api/text-anthropic': 'text-api', 'agents/claude-code': 'claude-code', 'faq/authentication': 'error-codes' }

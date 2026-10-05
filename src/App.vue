@@ -17,6 +17,7 @@ import './components/announcements.css'
 import './components/tickets.css'
 import './components/login.css'
 import './components/account-menu.css'
+import './components/docs-layout.css'
 import { useRoute, useRouter } from 'vue-router'
 import { Layers3, LayoutDashboard, Package, KeyRound, ChartNoAxesCombined, Boxes, UsersRound, Bell, ClipboardList, CircleHelp, BookOpen, Megaphone, MessagesSquare, ChevronDown, ChevronRight, ChevronsLeft, Menu, ArrowUpRight, PanelTop, LogOut, BadgeDollarSign, House } from 'lucide-vue-next'
 const route = useRoute()
@@ -40,12 +41,12 @@ const mainItems = [
 const homeItem = { path: '/home', title: '首页', icon: House, description: '了解 TokenHub 平台与模型接入。' }
 const pricingItem = { path: '/pricing', title: '定价', icon: BadgeDollarSign, description: '了解模型价格与计费方式。' }
 const helpItems = [
-  { path: '/help/docs', title: '接入文档', icon: BookOpen, description: '查阅 API 接入指南与使用说明。' },
+  { path: '/docs', title: '接入文档', icon: BookOpen, description: '查阅 API 接入指南与使用说明。' },
   { path: '/help/announcements', title: '平台公告', icon: Megaphone, description: '了解模型更新、维护通知与平台动态。' },
   { path: '/help/tickets', title: '我的工单', icon: MessagesSquare, description: '提交问题反馈并跟踪处理进展。' }
 ]
 const visibleItems = computed(() => authenticated.value ? [homeItem, ...mainItems.slice(0, 5), pricingItem, ...mainItems.slice(5)].filter(item => !isSub.value || !['/subaccounts', '/audit-logs'].includes(item.path)) : [homeItem, mainItems[4]!, pricingItem])
-const visibleHelpItems = computed(() => authenticated.value ? helpItems : helpItems.filter(item => item.path === '/help/docs'))
+const visibleHelpItems = computed(() => authenticated.value ? helpItems.filter(item => item.path !== '/docs') : [])
 const accountPaths = ['/services', '/api-keys', '/usage', '/alerts']
 const accountItems = computed(() => visibleItems.value.filter(item => accountPaths.includes(item.path)))
 const current = computed(() => [homeItem, ...mainItems, pricingItem, ...helpItems].find(item => item.path === route.path || route.path.startsWith(item.path + '/')) ?? mainItems[0]!)
@@ -72,7 +73,6 @@ watch(() => route.path, path => {
     <HomeView v-if="route.path === '/home'" :authenticated="false" />
     <PricingView v-else-if="route.path === '/pricing'" />
     <ModelsView v-else-if="route.path === '/models' || route.path.startsWith('/models/')" :is-sub="false" guest />
-    <DocsView v-else-if="route.path === '/help/docs' || route.path.startsWith('/help/docs/')" :is-sub="false" guest />
   </PublicLayout>
   <div v-else class="portal" :class="{ compact }">
     <button v-if="mobileOpen" class="mobile-shade" aria-label="关闭菜单" @click="mobileOpen = false" />
@@ -95,6 +95,7 @@ watch(() => route.path, path => {
           <RouterLink v-for="item in visibleHelpItems" :key="item.path" :to="item.path" class="child-link" :class="{ selected: (route.path === item.path || route.path.startsWith(item.path + '/')) }" :aria-current="(route.path === item.path || route.path.startsWith(item.path + '/')) ? 'page' : undefined"><span class="child-dot" />{{ item.title }}</RouterLink>
         </div>
       </nav>
+      <div class="sidebar-fixed-docs"><RouterLink to="/docs" class="nav-link" title="接入文档" :class="{ selected: route.path === '/docs' || route.path.startsWith('/docs/') }" :aria-current="route.path === '/docs' || route.path.startsWith('/docs/') ? 'page' : undefined"><BookOpen :size="19" :stroke-width="1.7" /><span>接入文档</span></RouterLink></div>
       <div class="sidebar-bottom"><span class="environment-dot" /><span class="sidebar-bottom-label">用户门户</span><button class="icon-button collapse-button" :aria-label="compact ? '展开侧栏' : '收起侧栏'" @click="compact = !compact"><ChevronsLeft :size="17" :class="{ rotated: compact }" /></button></div>
     </aside>
 
@@ -113,11 +114,12 @@ watch(() => route.path, path => {
         <AlertView v-else-if="route.path === '/alerts' || route.path.startsWith('/alerts/')" />
         <AuditView v-else-if="route.path === '/audit-logs'" />
         <AnnouncementsView v-else-if="route.path === '/help/announcements' || route.path.startsWith('/help/announcements/')" :is-sub="isSub" />
-        <DocsView v-else-if="route.path === '/help/docs' || route.path.startsWith('/help/docs/')" :is-sub="isSub" :guest="!authenticated" />
+        <DocsView v-else-if="route.path === '/docs' || route.path.startsWith('/docs/')" />
         <TicketsView v-else-if="route.path === '/help/tickets' || route.path.startsWith('/help/tickets/')" :is-sub="isSub" />
-        <div v-else class="page-heading"><div><h1>{{ current.title }}</h1><p>{{ current.description }}</p></div><RouterLink v-if="route.path !== '/help/docs'" class="docs-link" to="/help/docs"><BookOpen :size="16" />接入文档<ArrowUpRight :size="15" /></RouterLink></div>
-        <section v-if="!['/home', '/pricing', '/overview', '/usage', '/audit-logs'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/help/announcements') && !route.path.startsWith('/help/docs') && !route.path.startsWith('/help/tickets')" class="page-panel" :aria-label="pageLabel">
+        <div v-else class="page-heading"><div><h1>{{ current.title }}</h1><p>{{ current.description }}</p></div><RouterLink class="docs-link" to="/docs"><BookOpen :size="16" />接入文档<ArrowUpRight :size="15" /></RouterLink></div>
+        <section v-if="!['/home', '/pricing', '/overview', '/usage', '/audit-logs'].includes(route.path) && !route.path.startsWith('/alerts') && !route.path.startsWith('/models') && !route.path.startsWith('/help/announcements') && !route.path.startsWith('/docs') && !route.path.startsWith('/help/tickets')" class="page-panel" :aria-label="pageLabel">
           <div class="panel-header"><span>{{ current.title }}</span><span class="placeholder-badge">页面预留</span></div>
+          <p v-if="route.path === '/services' && route.query.section === 'keys'" class="docs-demo-note">已定位到“我的服务”的密钥管理入口。当前服务页面仍为演示预留，尚未接入实际创建密钥功能。</p>
           <div class="empty-canvas">
             <div class="empty-art"><div class="art-halo" /><div class="art-window"><div class="art-window-bar"><i /><i /><i /></div><div class="art-window-body"><span class="art-mini-icon"><component :is="current.icon" :size="23" :stroke-width="1.4" /></span><div class="art-lines"><i /><i /></div></div><div class="art-skeleton"><i /><i /><i /></div></div><span class="art-corner"><PanelTop :size="17" /></span></div>
             <h2>{{ pageLabel }}</h2><p>该模块尚未接入，功能内容将在后续补充</p><span class="empty-note">{{ route.query.action === 'create' ? '已进入创建密钥入口，后续补充创建表单' : route.params.serviceId ? '当前服务：' + route.params.serviceId : route.params.alertId ? '当前告警：' + route.params.alertId : route.params.announcementId ? '当前公告：' + route.params.announcementId : route.query.serviceId ? '已按服务筛选：' + route.query.serviceId : route.query.startDate ? '统计范围：' + route.query.startDate + ' 至 ' + route.query.endDate : '当前展示用户门户的导航与页面结构' }}</span>
