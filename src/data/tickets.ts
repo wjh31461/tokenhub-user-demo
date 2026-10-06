@@ -1,3 +1,4 @@
+import { createUuid } from '../utils/uuid'
 export type TicketStatus = 'PENDING' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'
 export type TicketCategory = 'API' | 'USAGE' | 'SERVICE' | 'OTHER'
 export const ticketCategoryNames: Record<TicketCategory, string> = { API: '接口问题', USAGE: '用量问题', SERVICE: '服务问题', OTHER: '其他问题' }
@@ -16,7 +17,7 @@ export interface TicketRecord { id: string; ticketNo: string; accountId: string;
 export const currentTicketAccount = 'demo-account'
 export const ticketTime = (value: string) => new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value)).replaceAll('/', '-')
 export const ticketSummary = (value: string) => Array.from(value).slice(0, 50).join('')
-export const newEvent = (content: string, createdAt: string, sender: TicketEvent['sender'] = 'SUPPORT', kind: TicketEvent['kind'] = 'MESSAGE', attachments: TicketAttachment[] = []): TicketEvent => ({ id: crypto.randomUUID(), content, createdAt, sender, kind, attachments })
+export const newEvent = (content: string, createdAt: string, sender: TicketEvent['sender'] = 'SUPPORT', kind: TicketEvent['kind'] = 'MESSAGE', attachments: TicketAttachment[] = []): TicketEvent => ({ id: createUuid(), content, createdAt, sender, kind, attachments })
 export const ticketRecords: TicketRecord[] = Array.from({ length: 25 }, (_, i) => {
   const createdAt = new Date(Date.parse('2026-10-05T10:30:00+08:00') - i * 8 * 3600000).toISOString()
   const status = (['IN_PROGRESS', 'RESOLVED', 'CLOSED', 'PENDING'] as const)[Math.min(i, 3)]!

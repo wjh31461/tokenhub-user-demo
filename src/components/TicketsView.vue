@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createUuid } from '../utils/uuid'
 import { computed, onBeforeUnmount, ref, toRaw, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus, RefreshCw } from 'lucide-vue-next'
@@ -53,7 +54,7 @@ async function submit() {
   busy.value = true
   try {
     if (scenario.value === 'submitError') throw new Error('模拟提交失败，请切换正常场景后重试')
-    const now = new Date().toISOString(), id = crypto.randomUUID()
+    const now = new Date().toISOString(), id = createUuid()
     const record: TicketRecord = { id, ticketNo: `TH${ticketTime(now).slice(0, 10).replaceAll('-', '')}${id.slice(0, 8).toUpperCase()}`, accountId: currentTicketAccount, category: formCategory.value as TicketCategory, status: 'PENDING', description: description.value.trim(), createdAt: now, needsUserReply: false, attachments: structuredClone(toRaw(images.value)), relatedTicketId: related.value?.id, timeline: [newEvent('工单已提交，待处理', now, 'SYSTEM', 'STATUS')] }
     await saveTicket(record); records.value.unshift(record); notice.value = '工单提交成功'; description.value = ''; images.value = []; formCategory.value = ''; allowLeave = true
     await router.replace({ path: `/tickets/${id}`, query: listQuery.value })

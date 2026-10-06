@@ -1,3 +1,4 @@
+import { createUuid } from '../utils/uuid'
 import { ref } from 'vue'
 import type { AuditChange, AuditRecord, AuditValue } from './audit'
 export interface UserProfile { nickname: string; avatarUrl: string | null; avatarAssetId: string | null; mobileMasked: string | null; email: string | null; version: number }
@@ -68,7 +69,7 @@ export async function persistProfile(draft: ProfileDraft): Promise<UserProfile> 
         if (before.version !== draft.version) { failure = new ProfileError('CONFLICT', '资料已在其他窗口更新，请重新加载后修改'); transaction.abort(); return }
         after.version = before.version + 1; result = after
         profiles.put(after, 'current')
-        transaction.objectStore('audit').add({ id: `profile-${crypto.randomUUID()}`, occurredAt: new Date().toISOString(), actorName: after.nickname, actorId: 'user-demo-001', targetType: 'PROFILE', targetName: '个人资料', targetId: 'user-demo-001', operationType: 'EDIT', result: 'SUCCESS', summary: '个人资料修改成功。', resultMessage: '昵称、邮箱与头像统一保存成功。邮箱仅为联系方式，未进行邮箱验证。', changes } satisfies AuditRecord)
+        transaction.objectStore('audit').add({ id: `profile-${createUuid()}`, occurredAt: new Date().toISOString(), actorName: after.nickname, actorId: 'user-demo-001', targetType: 'PROFILE', targetName: '个人资料', targetId: 'user-demo-001', operationType: 'EDIT', result: 'SUCCESS', summary: '个人资料修改成功。', resultMessage: '昵称、邮箱与头像统一保存成功。邮箱仅为联系方式，未进行邮箱验证。', changes } satisfies AuditRecord)
       }
       transaction.oncomplete = () => resolve(result)
       transaction.onerror = () => reject(transaction.error || new Error('保存失败，请重试'))

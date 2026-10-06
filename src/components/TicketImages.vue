@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createUuid } from '../utils/uuid'
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import type { TicketAttachment } from '../data/tickets'
 const props = defineProps<{ images: TicketAttachment[]; readonly?: boolean; disabled?: boolean; failUpload?: boolean }>()
@@ -35,7 +36,7 @@ async function add(incoming: File[]) {
     if (file.size > 10 * MB) { rejected.push(`${file.name}：单张不能超过 10 MB`); continue }
     if (current.length >= 10) { rejected.push('每次最多 10 张图片'); continue }
     if (current.reduce((sum, image) => sum + image.bytes, 0) + file.size > 50 * MB) { rejected.push('每次图片合计不能超过 50 MB'); continue }
-    const image: TicketAttachment = { id: crypto.randomUUID(), name: file.name, bytes: file.size, url: '', state: 'UPLOADING' }
+    const image: TicketAttachment = { id: createUuid(), name: file.name, bytes: file.size, url: '', state: 'UPLOADING' }
     files.set(image.id, file); current.push(image); accepted.push([image, file])
   }
   emit('change', current); error.value = [...new Set(rejected)].join('；')

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createUuid } from '../utils/uuid'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Camera, RefreshCw, UserRound, ShieldCheck } from 'lucide-vue-next'
@@ -51,7 +52,7 @@ async function upload(file: File) {
     await new Promise<void>((resolve, reject) => { const image = new Image(); image.onload = () => resolve(); image.onerror = () => reject(new Error('图片损坏或无法解码')); image.src = url })
     if (profileScenario.value === 'uploadError') throw new Error('头像上传失败，请切换正常场景后重试')
     if (!active || request !== uploadGeneration || !draft.value) return
-    draft.value.avatarUrl = url; draft.value.avatarAssetId = `avatar-${crypto.randomUUID()}`; temporaryExpiresAt = Date.now() + 24 * 3600000; avatarBroken.value = false
+    draft.value.avatarUrl = url; draft.value.avatarAssetId = `avatar-${createUuid()}`; temporaryExpiresAt = Date.now() + 24 * 3600000; avatarBroken.value = false
     notice.value = '头像已上传，仅供预览；点击保存后正式生效'
   } catch (cause) { if (active && request === uploadGeneration) avatarError.value = cause instanceof Error ? cause.message : '头像上传失败，请重试' }
   finally { if (active && request === uploadGeneration) uploading.value = false }
